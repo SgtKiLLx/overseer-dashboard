@@ -11,9 +11,9 @@ const handler = NextAuth({
   ],
   callbacks: {
     async session({ session, token }: any) {
-      // Security Check: Only let you in if the Discord ID matches yours
+      // Only let YOU in. token.sub is your Discord ID.
       if (token.sub !== process.env.ADMIN_DISCORD_ID) {
-        return null;
+        return null; // This blocks unauthorized users
       }
       if (session.user) {
         session.user.id = token.sub;
@@ -26,4 +26,5 @@ const handler = NextAuth({
   }
 });
 
+// THIS LINE IS CRITICAL:
 export { handler as GET, handler as POST };
