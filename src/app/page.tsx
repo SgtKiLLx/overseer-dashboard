@@ -67,7 +67,7 @@ export default async function AdminDashboard() {
           <StatCard icon={<Shield className="text-cyan-400" />} label="Active Tribes" value={new Set(registrations.map(r => r.tribeName)).size} />
           <StatCard icon={<Users className="text-blue-400" />} label="Registered Survivors" value={registrations.length} />
           <StatCard icon={<Crown className="text-amber-400" />} label="Alpha Claims" value={alphaClaims.length} />
-          <StatCard icon={<Activity className="text-emerald-400" />} label="System Health" value="Stable" />
+          <StatCard icon={<Activity className="text-emerald-400" />} label="Overseer" value="Online" />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
