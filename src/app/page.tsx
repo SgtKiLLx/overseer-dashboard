@@ -154,32 +154,50 @@ export default async function AdminDashboard({
            </div>
         )}
 
-        {/* SECTOR 3: ROSTER */}
+        {/* TAB 3: ROSTER (SCROLL FIX EDITION) */}
         {activeTab === "roster" && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h3 className="text-3xl font-black uppercase text-white tracking-tighter italic px-2">Global Roster</h3>
-            <div className="bg-[#050505] border border-white/[0.05] rounded-[40px] overflow-hidden shadow-2xl">
-                <table className="w-full text-left">
-                    <thead className="bg-white/[0.02] font-black text-[10px] uppercase tracking-[0.3em] text-slate-600">
-                        <tr><th className="p-8">Identification</th><th className="p-8">Survivor</th><th className="p-8 text-right pr-12">Action</th></tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/[0.02]">
-                        {registrations.map(reg => (
-                            <tr key={reg.id} className="group hover:bg-white/[0.01] transition-colors">
-                                <td className="p-8">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-cyan-500 font-black text-[10px] uppercase">{reg.tribeName.substring(0, 2)}</div>
-                                        <span className="font-bold text-sm uppercase text-white tracking-tight">{reg.tribeName}</span>
-                                    </div>
-                                </td>
-                                <td className="p-8"><p className="text-sm font-semibold text-slate-200">{reg.ign}</p><p className="text-[10px] text-cyan-900 font-mono uppercase font-bold">{reg.xboxGamertag}</p></td>
-                                <td className="p-8 text-right pr-10">
-                                    <form action={wipeSurvivor}><input type="hidden" name="id" value={reg.id} /><button className="p-4 rounded-2xl bg-red-500/[0.02] text-red-500/20 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"><Trash2 size={18} /></button></form>
-                                </td>
+          <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+            <h3 className="text-3xl font-black italic uppercase tracking-tighter px-2">Global Roster</h3>
+            
+            {/* Wrapper that allows sliding */}
+            <div className="bg-[#0A0A0A] border border-white/5 rounded-[40px] shadow-2xl overflow-hidden">
+                <div className="overflow-x-auto touch-pan-x">
+                    <table className="w-full text-left border-collapse min-w-[500px]">
+                        <thead className="bg-white/5">
+                            <tr className="text-slate-500 text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                                <th className="p-6 whitespace-nowrap">Tribe Signature</th>
+                                <th className="p-6 whitespace-nowrap">Survivor</th>
+                                <th className="p-6 text-right pr-10 whitespace-nowrap">Protocol</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.03]">
+                            {registrations.map(reg => (
+                                <tr key={reg.id} className="group hover:bg-white/[0.01] transition-all">
+                                    <td className="p-6 whitespace-nowrap">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-cyan-400 font-black text-xs uppercase italic">
+                                                {reg.tribeName.substring(0, 2)}
+                                            </div>
+                                            <span className="font-bold text-sm uppercase tracking-tight text-white">{reg.tribeName}</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-6 whitespace-nowrap">
+                                        <p className="text-sm font-semibold">{reg.ign}</p>
+                                        <p className="text-[10px] text-cyan-700 font-mono uppercase">{reg.xboxGamertag}</p>
+                                    </td>
+                                    <td className="p-6 text-right pr-8">
+                                        <form action={wipeSurvivor}>
+                                            <input type="hidden" name="id" value={reg.id} />
+                                            <button className="p-3 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
           </div>
         )}
