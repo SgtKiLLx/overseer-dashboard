@@ -266,7 +266,8 @@ export default async function AdminDashboard({
                     <ConfigInput label="Rules Sector" name="rules" defaultValue={config?.rulesChannelId || ""} icon={<Hash size={14}/>} />
                     <ConfigInput label="Info Sector" name="info" defaultValue={config?.infoChannelId || ""} icon={<Hash size={14}/>} />
                     <ConfigInput label="HQ Category" name="category" defaultValue={config?.tribeCategoryId || ""} icon={<Hash size={14}/>} />
-                    <ConfigInput label="Master Role" name="role" defaultValue={config?.adminRoleIds || ""} icon={<Lock size={14}/>} />
+                    <ConfigInput label="Master Role ID(s)" name="role" defaultValue={config?.adminRoleIds || ""} icon={<Lock size={14}/>} />
+                    
                 </div>
                 <div className="pt-10 border-t border-white/[0.03] flex justify-end">
                     <button type="submit" className="bg-white text-black font-[1000] px-12 py-5 rounded-[28px] hover:bg-cyan-400 transition-all text-xs uppercase italic flex items-center gap-3 shadow-xl">
