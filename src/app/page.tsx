@@ -56,12 +56,14 @@ export default async function AdminDashboard() {
 
       <main className="p-6 max-w-[1600px] mx-auto space-y-8">
         
-        {/* Modern Greeting */}
+        {/* Modern Greeting - NOW LIVE */}
         <header className="py-4">
-          <h2 className="text-3xl font-semibold text-white">Hello, {session.user?.name}</h2>
-          <p className="text-slate-400">Everything is running smoothly. {new Set(registrations.map(r => r.tribeName)).size} tribes active.</p>
+          <h2 className="text-3xl font-semibold text-white tracking-tight text-white uppercase italic">Hello, {session.user?.name}</h2>
+          <p className="text-slate-400">
+            Everything is running smoothly. {new Set(registrations.map(r => r.tribeName)).size} tribes active.
+          </p>
         </header>
-
+        
         {/* Quick Stats Grid - Android 16 Card Style */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard icon={<Shield className="text-cyan-400" />} label="Active Tribes" value={new Set(registrations.map(r => r.tribeName)).size} />
