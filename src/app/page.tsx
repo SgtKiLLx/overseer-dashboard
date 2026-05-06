@@ -17,7 +17,7 @@ export default async function AdminDashboard({
 
   const activeTab = searchParams.tab || "intelligence";
 
-  // Fetch Data
+  // Fetch Live Data
   const registrations = await db.select().from(tribeRegistrationsTable);
   const alphaClaims = await db.select().from(alphaClaimsTable);
   const configs = await db.select().from(guildConfigTable);
@@ -80,7 +80,7 @@ export default async function AdminDashboard({
   return (
     <div className="min-h-screen bg-[#020202] text-slate-300 font-sans selection:bg-cyan-500/30 flex flex-col lg:flex-row">
       
-      {/* 1. SIDEBAR (POLISHED) */}
+      {/* 1. SIDEBAR (DESKTOP) */}
       <aside className="w-80 border-r border-white/[0.03] bg-[#050505] hidden lg:flex flex-col p-8 sticky top-0 h-screen">
         <div className="flex items-center gap-3 mb-12 px-2">
           <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-900/20">
@@ -97,7 +97,7 @@ export default async function AdminDashboard({
         </nav>
       </aside>
 
-      {/* 2. MOBILE BOTTOM NAV (GOOGLE GLOW STYLE) */}
+      {/* 2. MOBILE BOTTOM NAV (GOOGLE GLOW) */}
       <div className="lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md">
         <div className="bg-black/60 backdrop-blur-3xl border border-white/[0.08] rounded-[32px] p-2 flex justify-around items-center shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
             <MobileNavLink href="/?tab=intelligence" icon={<LayoutDashboard size={22} />} active={activeTab === "intelligence"} />
@@ -110,6 +110,7 @@ export default async function AdminDashboard({
 
       <main className="flex-1 p-6 lg:p-12 max-w-[1600px] mx-auto w-full pb-32 lg:pb-12">
         
+        {/* SECTOR 1: INTELLIGENCE */}
         {activeTab === "intelligence" && (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-700">
             <header>
@@ -127,6 +128,7 @@ export default async function AdminDashboard({
           </div>
         )}
 
+        {/* SECTOR 2: STRATEGIC MAP */}
         {activeTab === "map" && (
            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
              <div className="flex justify-between items-end px-2">
@@ -152,6 +154,7 @@ export default async function AdminDashboard({
            </div>
         )}
 
+        {/* SECTOR 3: ROSTER */}
         {activeTab === "roster" && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h3 className="text-3xl font-black uppercase text-white tracking-tighter italic px-2">Global Roster</h3>
@@ -181,6 +184,53 @@ export default async function AdminDashboard({
           </div>
         )}
 
+        {/* SECTOR 4: ALPHA PROTOCOLS (Missing Section Restored) */}
+        {activeTab === "alpha" && (
+           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div className="px-2 flex justify-between items-center">
+                <h3 className="text-3xl font-black uppercase text-white tracking-tighter italic">Alpha Protocols</h3>
+                <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em]">Link Status: Encrypted</span>
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {alphaClaims.length === 0 && (
+                   <div className="md:col-span-2 bg-white/[0.02] border border-dashed border-white/10 rounded-[48px] p-20 text-center">
+                      <p className="text-slate-600 text-sm font-black uppercase tracking-[0.4em] italic">No pending authorization requests detected</p>
+                   </div>
+                )}
+                {alphaClaims.map(claim => (
+                    <div key={claim.id} className={`bg-[#050505] border border-white/[0.05] p-8 rounded-[48px] shadow-2xl group transition-all hover:border-amber-500/30 ${claim.status === 'approved' ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
+                        <div className="flex justify-between items-center mb-10">
+                            <h4 className="text-2xl font-black uppercase italic tracking-tighter text-white">{claim.tribeName}</h4>
+                            <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase ${claim.status === 'approved' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                                {claim.status}
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 mb-10">
+                             <div className="bg-white/[0.03] rounded-3xl p-5 border border-white/[0.05] text-center">
+                                <span className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1 italic">Grid_Loc</span>
+                                <span className="text-lg font-bold text-white tracking-tight">{claim.coordinates}</span>
+                             </div>
+                             <div className="bg-white/[0.03] rounded-3xl p-5 border border-white/[0.05] text-center">
+                                <span className="block text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1 italic">Roster</span>
+                                <span className="text-lg font-bold text-white tracking-tight">{claim.memberCount} Units</span>
+                             </div>
+                        </div>
+                        {claim.status === 'pending' && (
+                            <form action={verifyAlpha}>
+                                <input type="hidden" name="id" value={claim.id} />
+                                <button type="submit" className="w-full bg-white text-black font-[1000] py-5 rounded-[28px] hover:bg-yellow-400 transition-all text-xs uppercase italic tracking-[0.2em] shadow-2xl">
+                                    Authorize Authority
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                ))}
+             </div>
+           </div>
+        )}
+
+        {/* SECTOR 5: SYSTEM CONFIG */}
         {activeTab === "settings" && (
            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
              <div className="px-2">
@@ -214,7 +264,7 @@ export default async function AdminDashboard({
   );
 }
 
-// --- SUBCOMPONENTS (REFINED FOR STEALTH & GLOW) ---
+// --- SUBCOMPONENTS ---
 
 function SidebarLink({ href, icon, label, active = false }: any) {
   return (
