@@ -56,12 +56,33 @@ export default async function AdminDashboard() {
 
       <main className="p-6 max-w-[1600px] mx-auto space-y-8">
         
-        {/* Modern Greeting - NOW LIVE */}
-        <header className="py-4">
-          <h2 className="text-3xl font-semibold text-white tracking-tight text-white uppercase italic">Hello, {session.user?.name}</h2>
-          <p className="text-slate-400">
-            Everything is running smoothly. {new Set(registrations.map(r => r.tribeName)).size} tribes active.
-          </p>
+        {/* Modern Hero Greeting */}
+        <header className="py-10 flex flex-col gap-2">
+          <div className="flex items-center gap-4">
+             {/* Dynamic Accent Line */}
+             <div className="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-600 rounded-full hidden sm:block" />
+             
+             <div>
+                <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                  Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-500">
+                    {session.user?.name}
+                  </span>
+                </h2>
+                
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full">
+                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                    <p className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">
+                      {new Set(registrations.map(r => r.tribeName)).size} Active Tribes
+                    </p>
+                  </div>
+                  
+                  <p className="text-slate-500 text-sm font-medium ml-1">
+                    System protocols are currently nominal.
+                  </p>
+                </div>
+             </div>
+          </div>
         </header>
         
         {/* Quick Stats Grid - Android 16 Card Style */}
