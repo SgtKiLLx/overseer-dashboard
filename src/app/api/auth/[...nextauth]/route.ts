@@ -6,8 +6,15 @@ const handler = NextAuth({
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-      // Explicitly ask for basic profile info
-      authorization: "https://discord.com/api/oauth2/authorize?scope=identify+email",
+      authorization: "https://discord.com/api/oauth2/authorize?scope=identify",
+      // ADD THIS SECTION BELOW:
+      profile(profile) {
+        return {
+          id: profile.id,
+          name: profile.global_name || profile.username, // This gets 'SgtKiLLx' instead of 'sgtkillx'
+          image: profile.avatar ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png` : null,
+        };
+      },
     }),
   ],
   callbacks: {
