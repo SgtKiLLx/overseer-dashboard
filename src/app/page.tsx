@@ -276,11 +276,19 @@ function SidebarLink({ href, icon, label, active = false }: any) {
 
 function MobileNavLink({ href, icon, active = false }: any) {
   return (
-    <Link href={href} className="relative group p-4">
+    <Link href={href} className="relative flex-1 flex justify-center items-center py-2">
+      {/* The Google-style active background indicator */}
       {active && (
-        <div className="absolute inset-0 bg-white rounded-full scale-[0.8] blur-xl opacity-20 animate-pulse" />
+        <div className="absolute inset-0 flex justify-center items-center">
+            {/* The soft glow behind the pill */}
+            <div className="w-12 h-12 bg-white rounded-full blur-md opacity-20 absolute" />
+            {/* The actual white capsule */}
+            <div className="w-14 h-8 bg-white rounded-full absolute shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
+        </div>
       )}
-      <div className={`relative z-10 p-3 rounded-2xl transition-all duration-500 ${active ? 'bg-white text-black shadow-[0_0_25px_rgba(255,255,255,0.3)] scale-110' : 'text-slate-600'}`}>
+      
+      {/* The Icon */}
+      <div className={`relative z-10 transition-all duration-400 ${active ? 'text-black' : 'text-slate-500'}`}>
         {icon}
       </div>
     </Link>
