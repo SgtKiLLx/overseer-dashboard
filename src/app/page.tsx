@@ -97,14 +97,14 @@ export default async function AdminDashboard({
         </nav>
       </aside>
 
-      {/* 2. MOBILE BOTTOM NAV (GOOGLE GLOW) */}
-      <div className="lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md">
-        <div className="bg-black/60 backdrop-blur-3xl border border-white/[0.08] rounded-[32px] p-2 flex justify-around items-center shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
-            <MobileNavLink href="/?tab=intelligence" icon={<LayoutDashboard size={22} />} active={activeTab === "intelligence"} />
-            <MobileNavLink href="/?tab=map" icon={<MapIcon size={22} />} active={activeTab === "map"} />
-            <MobileNavLink href="/?tab=roster" icon={<Users size={22} />} active={activeTab === "roster"} />
-            <MobileNavLink href="/?tab=alpha" icon={<Crown size={22} />} active={activeTab === "alpha"} />
-            <MobileNavLink href="/?tab=settings" icon={<Settings size={22} />} active={activeTab === "settings"} />
+      {/* 2. MOBILE BOTTOM NAVIGATION (DIVIDER EDITION) */}
+      <div className="lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm">
+        <div className="bg-[#0D0D0D]/80 backdrop-blur-3xl border border-white/[0.05] rounded-[36px] px-2 flex justify-between items-center shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
+            <MobileNavLink href="/?tab=intelligence" icon={<LayoutDashboard size={20} />} active={activeTab === "intelligence"} />
+            <MobileNavLink href="/?tab=map" icon={<MapIcon size={20} />} active={activeTab === "map"} />
+            <MobileNavLink href="/?tab=roster" icon={<Users size={20} />} active={activeTab === "roster"} />
+            <MobileNavLink href="/?tab=alpha" icon={<Crown size={20} />} active={activeTab === "alpha"} />
+            <MobileNavLink href="/?tab=settings" icon={<Settings size={20} />} active={activeTab === "settings"} showDivider={false} />
         </div>
       </div>
 
@@ -274,23 +274,26 @@ function SidebarLink({ href, icon, label, active = false }: any) {
   );
 }
 
-function MobileNavLink({ href, icon, active = false }: any) {
+function MobileNavLink({ href, icon, active = false, showDivider = true }: any) {
   return (
-    <Link href={href} className="relative flex-1 flex justify-center items-center py-2">
-      {/* The Google-style active background indicator */}
+    <Link href={href} className="relative flex-1 flex justify-center items-center py-4">
+      {/* Active background indicator */}
       {active && (
         <div className="absolute inset-0 flex justify-center items-center">
-            {/* The soft glow behind the pill */}
-            <div className="w-12 h-12 bg-white rounded-full blur-md opacity-20 absolute" />
-            {/* The actual white capsule */}
-            <div className="w-14 h-8 bg-white rounded-full absolute shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
+            <div className="w-12 h-12 bg-white rounded-full blur-xl opacity-10 absolute" />
+            <div className="w-14 h-8 bg-white rounded-full absolute shadow-[0_0_20px_rgba(255,255,255,0.3)]" />
         </div>
       )}
       
       {/* The Icon */}
-      <div className={`relative z-10 transition-all duration-400 ${active ? 'text-black' : 'text-slate-500'}`}>
+      <div className={`relative z-10 transition-all duration-300 ${active ? 'text-black' : 'text-slate-500'}`}>
         {icon}
       </div>
+
+      {/* Subtle Vertical Divider */}
+      {showDivider && (
+        <div className="absolute right-0 h-4 w-[1px] bg-white/[0.08] rounded-full" />
+      )}
     </Link>
   );
 }
