@@ -56,32 +56,33 @@ export default async function AdminDashboard() {
 
       <main className="p-6 max-w-[1600px] mx-auto space-y-8">
         
-        {/* Modern Hero Greeting */}
-        <header className="py-10 flex flex-col gap-2">
-          <div className="flex items-center gap-4">
-             {/* Dynamic Accent Line */}
-             <div className="w-1.5 h-12 bg-gradient-to-b from-cyan-400 to-blue-600 rounded-full hidden sm:block" />
-             
-             <div>
-                <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                  Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-500">
-                    {session.user?.name}
-                  </span>
-                </h2>
-                
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full">
-                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                    <p className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">
-                      {new Set(registrations.map(r => r.tribeName)).size} Active Tribes
-                    </p>
-                  </div>
-                  
-                  <p className="text-slate-500 text-sm font-medium ml-1">
-                    System protocols are currently nominal.
-                  </p>
-                </div>
-             </div>
+        {/* Modern Android 16/17 Hero Section */}
+        <header className="rounded-[40px] bg-white/[0.03] border border-white/10 p-8 md:p-12 mb-10 backdrop-blur-md relative overflow-hidden">
+          {/* Soft background orb */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 blur-[120px] -z-10" />
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 text-cyan-400 px-4 py-1.5 rounded-full border border-cyan-500/20">
+                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em]">Overseer v1.2</span>
+              </div>
+              
+              <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-tight">
+                Welcome, <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                  {session.user?.name}
+                </span>
+              </h2>
+            </div>
+
+            <div className="bg-black/40 border border-white/5 p-6 rounded-[32px] min-w-[200px]">
+               <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Live Tribes</p>
+               <div className="text-5xl font-black text-white">
+                 {new Set(registrations.map(r => r.tribeName)).size}
+               </div>
+               <p className="text-green-500 text-[10px] mt-2 font-bold tracking-tighter">● ALL SYSTEMS NOMINAL</p>
+            </div>
           </div>
         </header>
         
