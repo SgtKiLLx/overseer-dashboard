@@ -56,32 +56,51 @@ export default async function AdminDashboard() {
 
       <main className="p-6 max-w-[1600px] mx-auto space-y-8">
         
-        {/* Modern Android 16/17 Hero Section */}
-        <header className="rounded-[40px] bg-white/[0.03] border border-white/10 p-8 md:p-12 mb-10 backdrop-blur-md relative overflow-hidden">
-          {/* Soft background orb */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 blur-[120px] -z-10" />
+        {/* Android 16/17 Inspired System Header */}
+        <header className="relative overflow-hidden rounded-[48px] bg-[#0A0A0A] border border-white/[0.06] p-8 md:p-14 mb-10 shadow-2xl transition-all hover:border-white/[0.1]">
+          {/* Background Ambient Glow */}
+          <div className="absolute top-0 right-0 w-[600px] h-[500px] bg-cyan-500/[0.04] blur-[130px] rounded-full -mr-32 -mt-32 pointer-events-none" />
           
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 bg-cyan-500/10 text-cyan-400 px-4 py-1.5 rounded-full border border-cyan-500/20">
-                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="text-[11px] font-bold uppercase tracking-[0.2em]">Overseer v1.2</span>
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+            <div className="space-y-6">
+              {/* Status Pill */}
+              <div className="inline-flex items-center gap-2.5 bg-white/[0.04] px-4 py-2 rounded-2xl border border-white/[0.05]">
+                <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.6)] animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">System Link: Stable</span>
               </div>
               
-              <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-tight">
-                Welcome, <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                  {session.user?.name}
-                </span>
-              </h2>
+              <div className="space-y-1">
+                <p className="text-slate-500 text-lg font-medium tracking-tight ml-1">Welcome back,</p>
+                <h2 className="text-6xl md:text-8xl font-[1000] text-white tracking-tighter leading-[0.9]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#22d3ee] via-[#3b82f6] to-[#6366f1] drop-shadow-sm">
+                    {session.user?.name}
+                  </span>
+                </h2>
+              </div>
             </div>
 
-            <div className="bg-black/40 border border-white/5 p-6 rounded-[32px] min-w-[200px]">
-               <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Live Tribes</p>
-               <div className="text-5xl font-black text-white">
-                 {new Set(registrations.map(r => r.tribeName)).size}
+            {/* Dynamic Tribe Widget */}
+            <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] p-8 rounded-[40px] min-w-[260px] flex flex-col items-center justify-center text-center shadow-2xl relative group transition-transform hover:scale-[1.02]">
+               {/* Internal Decoration */}
+               <div className="absolute top-4 right-6 text-[8px] font-bold text-cyan-900 uppercase tracking-widest">Live_Feed</div>
+               
+               <p className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.25em] mb-2">Network Capacity</p>
+               
+               <div className="flex items-baseline gap-2">
+                 <span className="text-7xl font-[1000] text-white tracking-tighter">
+                   {new Set(registrations.map(r => r.tribeName)).size}
+                 </span>
+                 <div className="flex flex-col items-start leading-none">
+                    <span className="text-cyan-500 font-black text-xl uppercase tracking-tighter">Active</span>
+                    <span className="text-cyan-800 font-bold text-xs uppercase tracking-tighter">Tribes</span>
+                 </div>
                </div>
-               <p className="text-green-500 text-[10px] mt-2 font-bold tracking-tighter">● ALL SYSTEMS NOMINAL</p>
+               
+               <div className="mt-6 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+               
+               <p className="mt-4 text-green-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                 <Activity size={10} /> Syncing Protocols
+               </p>
             </div>
           </div>
         </header>
