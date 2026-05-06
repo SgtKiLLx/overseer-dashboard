@@ -58,8 +58,8 @@ export default async function AdminDashboard() {
         
         {/* Modern Greeting */}
         <header className="py-4">
-          <h2 className="text-3xl font-semibold text-white">Hello, {session.user?.name?.split(' ')[0]}</h2>
-          <p className="text-slate-400">Everything is running smoothly. 24 tribes active.</p>
+          <h2 className="text-3xl font-semibold text-white">Hello, {session.user?.name}</h2>
+          <p className="text-slate-400">Everything is running smoothly. {new Set(registrations.map(r => r.tribeName)).size} tribes active.</p>
         </header>
 
         {/* Quick Stats Grid - Android 16 Card Style */}
