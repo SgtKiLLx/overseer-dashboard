@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { tribeRegistrationsTable, alphaClaimsTable, guildConfigTable } from "@/lib/db/schema";
-import { Users, Shield, Crown, Activity, Trash2, CheckCircle, Search, Settings, Bell, LayoutDashboard, Map as MapIcon, MapPin, Zap } from "lucide-react";
+import { Users, Shield, Crown, Activity, Trash2, CheckCircle, Bell, LayoutGrid, Map as MapIcon } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -10,13 +10,10 @@ export default async function AdminDashboard() {
   const session = await getServerSession();
   if (!session) redirect("/login");
 
-  // Fetch Live Data from Neon
   const registrations = await db.select().from(tribeRegistrationsTable);
   const alphaClaims = await db.select().from(alphaClaimsTable);
-  const config = await db.select().from(guildConfigTable).limit(1);
   const tribeCount = new Set(registrations.map(r => r.tribeName)).size;
 
-  // --- SERVER ACTIONS ---
   async function wipeSurvivor(formData: FormData) {
     "use server";
     const id = Number(formData.get("id"));
@@ -31,225 +28,172 @@ export default async function AdminDashboard() {
     revalidatePath("/");
   }
 
-  // Coordinate Parser (Lat/Lon to CSS %)
-  // Maps Ark Coordinates (0-100) to Style Positions
   const parseCoords = (coordStr: string) => {
-    if (!coordStr) return { top: '0%', left: '0%', valid: false };
     const parts = coordStr.split(/[, ]+/).map(c => parseFloat(c.trim()));
-    if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return { top: '0%', left: '0%', valid: false };
-    // Ark Lat is Y-axis (Top), Lon is X-axis (Left)
+    if (parts.length < 2 || isNaN(parts[0])) return { top: '0%', left: '0%', valid: false };
     return { top: `${parts[0]}%`, left: `${parts[1]}%`, valid: true };
   };
 
   return (
-    <div className="min-h-screen bg-[#020202] text-slate-200 font-sans flex selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[#000000] text-white font-sans selection:bg-cyan-500/30 pb-24">
       
-      {/* 1. SIDEBAR (ANDROID 17 STYLE) */}
-      <aside className="w-72 border-r border-white/[0.05] bg-black/40 backdrop-blur-3xl hidden lg:flex flex-col p-6 sticky top-0 h-screen">
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <div className="w-9 h-9 bg-gradient-to-br from-[#22d3ee] to-[#6366f1] rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <Shield className="text-black" size={18} />
+      {/* 1. TOP NAV - ANDROID PILL STYLE */}
+      <nav className="p-6 flex justify-between items-center max-w-[1400px] mx-auto">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-[#1A1C1E] border border-white/10 rounded-[18px] flex items-center justify-center">
+            <Shield className="text-cyan-400" size={24} />
           </div>
-          <h1 className="text-xl font-[1000] tracking-tighter text-white uppercase italic">Overseer</h1>
+          <div>
+            <h1 className="text-lg font-bold tracking-tight">Overseer</h1>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Intelligence</p>
+          </div>
         </div>
-
-        <nav className="space-y-2 flex-1">
-          <SidebarLink icon={<LayoutDashboard size={20}/>} label="Intelligence" active />
-          <SidebarLink icon={<MapIcon size={20}/>} label="Strategic Map" />
-          <SidebarLink icon={<Users size={20}/>} label="Survivor Roster" />
-          <SidebarLink icon={<Crown size={20}/>} label="Alpha Protocols" />
-          <SidebarLink icon={<Settings size={20}/>} label="System Config" />
-        </nav>
-
-        <div className="mt-auto pt-6 border-t border-white/[0.05]">
-           <div className="flex items-center gap-3 px-2">
-              <img src={session.user?.image || ""} className="w-11 h-11 rounded-2xl border border-white/10 shadow-xl" alt="Admin" />
-              <div className="leading-none">
-                <p className="text-sm font-bold text-white tracking-tight">{session.user?.name}</p>
-                <p className="text-[10px] text-cyan-500 font-black uppercase mt-1 tracking-widest">Master Admin</p>
-              </div>
-           </div>
+        <div className="flex gap-2">
+            <button className="w-12 h-12 rounded-[18px] bg-[#1A1C1E] border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition">
+                <Bell size={20} />
+            </button>
+            <img src={session.user?.image || ""} className="w-12 h-12 rounded-[18px] border-2 border-white/5 shadow-lg" alt="Admin" />
         </div>
-      </aside>
+      </nav>
 
-      {/* 2. MAIN CONTENT AREA */}
-      <main className="flex-1 p-4 md:p-10 max-w-[1600px] mx-auto">
+      <main className="px-6 max-w-[1400px] mx-auto">
         
-        {/* Top Header Actions */}
-        <div className="flex justify-between items-center mb-10">
-           <div className="flex items-center gap-2 px-4 py-1.5 bg-white/[0.03] border border-white/[0.08] rounded-2xl">
-             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-             <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Link Status: Secure</span>
-           </div>
-           <div className="flex items-center gap-3">
-              <button className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] transition text-slate-400"><Bell size={20}/></button>
-           </div>
-        </div>
-
-        {/* 3. HERO GREETING */}
-        <header className="mb-12 space-y-2">
-            <h2 className="text-5xl md:text-7xl font-[1000] text-white tracking-tighter leading-none">
-              Welcome back,<br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#22d3ee] via-[#3b82f6] to-[#6366f1]">
-                {session.user?.name}
-              </span>
+        {/* 2. MODERN GREETING SECTION */}
+        <header className="py-8">
+            <h2 className="text-4xl font-bold tracking-tight">
+              Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{session.user?.name}</span>
             </h2>
-            <p className="text-slate-500 text-sm font-bold uppercase tracking-[0.3em] pt-2 italic opacity-50">Overseer Intelligence Protocol V1.2</p>
+            <div className="flex items-center gap-2 mt-2">
+                <div className="bg-green-500/10 px-3 py-1 rounded-full flex items-center gap-1.5 border border-green-500/20">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-[10px] font-black text-green-500 uppercase tracking-tighter">System Link Active</span>
+                </div>
+            </div>
         </header>
 
-        {/* 4. STRATEGIC MAP & INTEL FEED */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12">
-          
-          {/* THE MAP (FJORDUR) */}
-          <div className="xl:col-span-2 bg-[#0A0A0A] border border-white/[0.08] rounded-[48px] p-3 overflow-hidden shadow-2xl relative group">
-            <div className="absolute top-8 left-8 z-10">
-               <h3 className="text-xs font-black text-white tracking-[0.3em] uppercase bg-black/60 backdrop-blur-md px-5 py-2 rounded-full border border-white/10 shadow-2xl">
-                 Live_Map: Fjordur
-               </h3>
-            </div>
+        {/* 3. WIDGET GRID (MODERN MOBILE STYLE) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
             
-            {/* Map Container */}
-            <div className="relative aspect-square w-full bg-slate-900 rounded-[40px] overflow-hidden border border-white/5 shadow-inner">
-                {/* Fjordur Base Image */}
-                <div 
-                    className="absolute inset-0 opacity-90 bg-cover bg-center transition-transform duration-700 group-hover:scale-[1.02]" 
-                    style={{ backgroundImage: "url('https://ark.wiki.gg/images/c/cc/Fjordur_Topographic_Map.jpg')" }} 
-                />
-
-                {/* Tactical Grid Overlay */}
-                <div className="absolute inset-0 grid grid-cols-10 grid-rows-10 pointer-events-none">
-                    {[...Array(100)].map((_, i) => (
-                        <div key={i} className="border-[0.5px] border-white/[0.07]" />
-                    ))}
+            {/* BIG MAP WIDGET */}
+            <div className="md:col-span-2 bg-[#121417] border border-white/5 rounded-[32px] overflow-hidden p-2 relative shadow-2xl">
+                <div className="absolute top-6 left-6 z-10 bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-2xl border border-white/10 flex items-center gap-2">
+                    <MapIcon size={12} className="text-cyan-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Sector_Fjordur</span>
                 </div>
-
-                {/* Interactive Tribe Pins */}
-                {alphaClaims.map(claim => {
-                    const pos = parseCoords(claim.coordinates);
-                    if (!pos.valid) return null;
-                    return (
-                        <div 
-                            key={claim.id} 
-                            className="absolute group/pin z-20 cursor-help" 
-                            style={{ top: pos.top, left: pos.left, transform: 'translate(-50%, -50%)' }}
-                        >
-                            <div className="w-6 h-6 bg-yellow-500 rounded-full animate-ping absolute opacity-20" />
-                            <div className="w-4 h-4 bg-yellow-400 rounded-full border-2 border-black shadow-[0_0_15px_rgba(250,204,21,0.8)] relative z-30 transition-transform group-hover/pin:scale-125" />
-                            
-                            {/* Floating Tooltip */}
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 hidden group-hover/pin:block bg-black/90 border border-yellow-500/30 p-4 rounded-2xl backdrop-blur-xl w-40 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50">
-                                <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-1">Tribe Alpha</p>
-                                <p className="text-sm font-bold text-white truncate">{claim.tribeName}</p>
-                                <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center text-[10px] text-slate-500">
-                                    <span>{claim.coordinates}</span>
-                                    <span>{claim.memberCount} Members</span>
-                                </div>
+                
+                <div className="relative aspect-square md:aspect-video w-full rounded-[24px] overflow-hidden border border-white/5">
+                    <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://ark.wiki.gg/images/c/cc/Fjordur_Topographic_Map.jpg')" }} />
+                    <div className="absolute inset-0 grid grid-cols-10 grid-rows-10 pointer-events-none border border-white/5 opacity-20">
+                        {[...Array(100)].map((_, i) => <div key={i} className="border-[0.5px] border-white/20" />)}
+                    </div>
+                    {alphaClaims.map(claim => {
+                        const pos = parseCoords(claim.coordinates);
+                        if (!pos.valid) return null;
+                        return (
+                            <div key={claim.id} className="absolute group z-20" style={{ top: pos.top, left: pos.left, transform: 'translate(-50%, -50%)' }}>
+                                <div className="w-6 h-6 bg-yellow-400 rounded-full animate-ping absolute opacity-20" />
+                                <div className="w-3 h-3 bg-yellow-400 rounded-full border-2 border-black shadow-lg shadow-yellow-500/50" />
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
-          </div>
 
-          {/* RIGHT SIDEBAR: RECENT ACTIVITY */}
-          <div className="flex flex-col gap-6">
-             <div className="bg-white/[0.02] border border-white/[0.06] rounded-[40px] p-8 flex-1 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-5 text-cyan-500"><Zap size={80}/></div>
-                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-8">System_Activity_Log</h3>
-                <div className="space-y-8">
-                    {alphaClaims.slice(0, 3).map(claim => (
-                        <div key={claim.id} className="flex gap-4 items-start border-l-2 border-yellow-500 pl-5 py-1">
-                            <div className="flex-1">
-                                <p className="text-[10px] font-black text-yellow-600 uppercase mb-1">Alpha Claim</p>
-                                <p className="text-sm font-bold text-white uppercase tracking-tight">{claim.tribeName}</p>
-                                <p className="text-[10px] text-slate-500 font-medium mt-1">Authorized at {claim.coordinates}</p>
-                            </div>
-                        </div>
-                    ))}
-                    {registrations.slice(0, 3).map(reg => (
-                        <div key={reg.id} className="flex gap-4 items-start border-l-2 border-cyan-500 pl-5 py-1">
-                            <div className="flex-1">
-                                <p className="text-[10px] font-black text-cyan-600 uppercase mb-1">New Signature</p>
-                                <p className="text-sm font-bold text-white uppercase tracking-tight">{reg.ign}</p>
-                                <p className="text-[10px] text-slate-500 font-medium mt-1">Joined {reg.tribeName}</p>
-                            </div>
-                        </div>
-                    ))}
+            {/* CAPACITY WIDGET */}
+            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-[32px] p-8 text-black flex flex-col justify-between h-full shadow-xl">
+                <div>
+                   <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Network Load</p>
+                   <h3 className="text-6xl font-black tracking-tighter">{tribeCount}</h3>
+                   <p className="text-sm font-bold uppercase tracking-tight">Active Tribe Units</p>
                 </div>
-             </div>
-             
-             {/* QUICK STATS WIDGET */}
-             <div className="bg-gradient-to-br from-[#22d3ee] to-[#3b82f6] rounded-[40px] p-8 text-black shadow-2xl shadow-cyan-500/20">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Network Capacity</p>
-                <div className="flex items-baseline gap-2">
-                    <span className="text-6xl font-[1000] tracking-tighter">{tribeCount}</span>
-                    <span className="text-sm font-bold uppercase tracking-tighter">Active Tribes</span>
-                </div>
-             </div>
-          </div>
+                <Activity size={32} className="mt-8 opacity-20" />
+            </div>
         </div>
 
-        {/* 5. SURVIVOR DATABASE */}
-        <div className="space-y-6">
-            <div className="flex items-center justify-between px-6">
-              <h3 className="text-2xl font-[1000] text-white tracking-tighter uppercase italic">Survivor Signatures</h3>
-              <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Entries: {registrations.length}</span>
+        {/* 4. SURVIVOR DATABASE SECTION */}
+        <div className="space-y-6 mb-12">
+            <div className="flex items-center justify-between px-2">
+                <h3 className="text-xl font-bold tracking-tight">Survivor Roster</h3>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Entries: {registrations.length}</span>
             </div>
 
-            <div className="bg-white/[0.02] border border-white/[0.06] rounded-[48px] overflow-hidden shadow-2xl backdrop-blur-md">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="text-slate-600 text-[10px] font-black uppercase tracking-[0.4em] border-b border-white/5">
-                      <th className="p-8">Identification</th>
-                      <th className="p-8">In-Game Name</th>
-                      <th className="p-4">Xbox ID</th>
-                      <th className="p-8 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/[0.04]">
-                    {registrations.map((reg) => (
-                      <tr key={reg.id} className="group hover:bg-white/[0.02] transition-all">
-                        <td className="p-8">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-[18px] bg-white/[0.04] border border-white/[0.1] flex items-center justify-center text-cyan-400 font-black text-sm group-hover:border-cyan-500 transition-all">
-                              {reg.tribeName.substring(0,1).toUpperCase()}
+            <div className="bg-[#121417] border border-white/5 rounded-[32px] overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-white/5">
+                            <tr className="text-slate-500 text-[10px] font-black uppercase tracking-widest border-b border-white/5">
+                                <th className="p-6">Tribe Signature</th>
+                                <th className="p-6">Survivor</th>
+                                <th className="p-6 text-right pr-10">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.03]">
+                            {registrations.map(reg => (
+                                <tr key={reg.id} className="hover:bg-white/[0.01] transition-all">
+                                    <td className="p-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-black text-[10px]">
+                                                {reg.tribeName.substring(0, 2).toUpperCase()}
+                                            </div>
+                                            <span className="font-bold text-sm uppercase tracking-tight">{reg.tribeName}</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-6">
+                                        <p className="text-sm font-medium text-slate-200">{reg.ign}</p>
+                                        <p className="text-[10px] text-cyan-700 font-mono uppercase">{reg.xboxGamertag}</p>
+                                    </td>
+                                    <td className="p-6 text-right pr-8">
+                                        <form action={wipeSurvivor}>
+                                            <input type="hidden" name="id" value={reg.id} />
+                                            <button className="p-3 rounded-2xl bg-red-500/5 text-red-500/40 hover:bg-red-500 hover:text-white transition-all">
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {/* 5. ALPHA CLAIMS SECTION */}
+        <div className="space-y-6">
+            <h3 className="text-xl font-bold tracking-tight px-2">Pending Protocols</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {alphaClaims.map(claim => (
+                    <div key={claim.id} className="bg-[#121417] border border-white/5 p-6 rounded-[32px] hover:border-yellow-500/30 transition-all">
+                        <div className="flex justify-between items-center mb-6">
+                            <h4 className="text-lg font-black uppercase italic tracking-tighter">{claim.tribeName}</h4>
+                            <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${claim.status === 'approved' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                                {claim.status}
                             </div>
-                            <span className="font-bold text-white uppercase tracking-tight text-lg">{reg.tribeName}</span>
-                          </div>
-                        </td>
-                        <td className="p-8">
-                            <span className="text-slate-300 font-semibold text-base">{reg.ign}</span>
-                        </td>
-                        <td className="p-4">
-                            <span className="text-cyan-800 font-mono text-xs uppercase tracking-widest">{reg.xboxGamertag}</span>
-                        </td>
-                        <td className="p-8 text-right">
-                          <form action={wipeSurvivor}>
-                            <input type="hidden" name="id" value={reg.id} />
-                            <button className="p-4 rounded-2xl bg-red-500/5 text-red-500/20 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 transform active:scale-90 shadow-lg">
-                              <Trash2 size={20} />
-                            </button>
-                          </form>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                        <div className="flex gap-4 mb-8">
+                             <div className="flex-1 bg-white/5 rounded-2xl p-3 border border-white/5">
+                                <span className="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Grid</span>
+                                <span className="text-sm font-bold">{claim.coordinates}</span>
+                             </div>
+                             <div className="flex-1 bg-white/5 rounded-2xl p-3 border border-white/5">
+                                <span className="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Units</span>
+                                <span className="text-sm font-bold">{claim.memberCount}</span>
+                             </div>
+                        </div>
+                        {claim.status === 'pending' && (
+                            <form action={verifyAlpha}>
+                                <input type="hidden" name="id" value={claim.id} />
+                                <button className="w-full bg-white text-black font-black py-4 rounded-2xl hover:bg-yellow-400 transition-all text-xs uppercase italic tracking-widest">
+                                    Authorize Access
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                ))}
             </div>
         </div>
 
       </main>
-    </div>
-  );
-}
-
-// --- SHARED UI COMPONENTS ---
-
-function SidebarLink({ icon, label, active = false }: { icon: any, label: string, active?: boolean }) {
-  return (
-    <div className={`flex items-center gap-5 px-5 py-4 rounded-2xl cursor-pointer transition-all duration-300 ${active ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.15)]' : 'text-slate-500 hover:text-white hover:bg-white/[0.03]'}`}>
-      {icon}
-      <span className="text-sm font-black uppercase tracking-tight">{label}</span>
     </div>
   );
 }
