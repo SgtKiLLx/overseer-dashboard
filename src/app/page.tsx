@@ -97,9 +97,9 @@ export default async function AdminDashboard({
         </nav>
       </aside>
 
-      {/* 2. MOBILE BOTTOM NAVIGATION (DIVIDER EDITION) */}
-      <div className="lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm">
-        <div className="bg-[#0D0D0D]/80 backdrop-blur-3xl border border-white/[0.05] rounded-[36px] px-2 flex justify-between items-center shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
+      {/* 2. MOBILE BOTTOM NAVIGATION (FULL GLOW EDITION) */}
+      <div className="lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[94%] max-w-md">
+        <div className="bg-[#050505]/80 backdrop-blur-3xl border border-white/[0.05] rounded-[32px] overflow-hidden flex justify-between items-center shadow-[0_30px_70px_rgba(0,0,0,0.9)]">
             <MobileNavLink href="/?tab=intelligence" icon={<LayoutDashboard size={20} />} active={activeTab === "intelligence"} />
             <MobileNavLink href="/?tab=map" icon={<MapIcon size={20} />} active={activeTab === "map"} />
             <MobileNavLink href="/?tab=roster" icon={<Users size={20} />} active={activeTab === "roster"} />
@@ -295,23 +295,34 @@ function SidebarLink({ href, icon, label, active = false }: any) {
 
 function MobileNavLink({ href, icon, active = false, showDivider = true }: any) {
   return (
-    <Link href={href} className="relative flex-1 flex justify-center items-center py-4">
-      {/* Active background indicator */}
+    <Link href={href} className="relative flex-1 flex flex-col justify-center items-center py-5 transition-all duration-500">
+      {/* 1. THE FULL SECTION GLOW */}
       {active && (
-        <div className="absolute inset-0 flex justify-center items-center">
-            <div className="w-12 h-12 bg-white rounded-full blur-xl opacity-10 absolute" />
-            <div className="w-14 h-8 bg-white rounded-full absolute shadow-[0_0_20px_rgba(255,255,255,0.3)]" />
+        <div className="absolute inset-0 overflow-hidden">
+            {/* Background soft fill */}
+            <div className="absolute inset-0 bg-white/[0.03]" />
+            
+            {/* The vertical "Beam" of light */}
+            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+            
+            {/* The soft radial glow filling the cell */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_70%)] blur-lg" />
+            
+            {/* The Google-style white capsule for the icon */}
+            <div className="absolute inset-0 flex justify-center items-center">
+                <div className="w-16 h-10 bg-white rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)]" />
+            </div>
         </div>
       )}
       
-      {/* The Icon */}
-      <div className={`relative z-10 transition-all duration-300 ${active ? 'text-black' : 'text-slate-500'}`}>
+      {/* 2. THE ICON */}
+      <div className={`relative z-10 transition-all duration-500 ${active ? 'text-black scale-110' : 'text-slate-500'}`}>
         {icon}
       </div>
 
-      {/* Subtle Vertical Divider */}
-      {showDivider && (
-        <div className="absolute right-0 h-4 w-[1px] bg-white/[0.08] rounded-full" />
+      {/* 3. THE DIVIDER (Adjusted for full glow) */}
+      {showDivider && !active && (
+        <div className="absolute right-0 h-6 w-[1px] bg-white/[0.05] rounded-full" />
       )}
     </Link>
   );
