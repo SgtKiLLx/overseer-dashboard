@@ -5,7 +5,7 @@ import { Viewport } from "next";
 export const metadata = {
   title: "OVERSEER // CMD",
   description: "Ark Tribe Management Terminal",
-  manifest: "/manifest.json", // Links the app manifest
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -26,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        {/* This tells the browser to use the file you just uploaded */}
         <link rel="icon" href="/icon.png" />
+        <link rel="apple-touch-icon" href="/icon.png" />
       </head>
       <body className="antialiased bg-black">
         <SessionWrapper>{children}</SessionWrapper>
