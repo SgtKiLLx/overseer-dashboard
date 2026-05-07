@@ -24,9 +24,19 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
+    // UPDATED: Multi-Admin Check
     async signIn({ user }: any) {
-      // Only let YOU in
-      return user.id === process.env.ADMIN_DISCORD_ID;
+      // Get the string of IDs and turn it into an array
+      const allowedIds = process.env.ADMIN_DISCORD_ID?.split(",") || [];
+      
+      // Check if the current user's ID is in that list
+      const isAuthorized = allowedIds.includes(user.id);
+
+      if (!isAuthorized) {
+        console.error("Unauthorized terminal access attempt from:", user.id);
+        return false; 
+      }
+      return true;
     },
     async session({ session, token }: any) {
       if (session.user) {
