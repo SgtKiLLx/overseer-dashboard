@@ -81,7 +81,7 @@ export default async function AdminDashboard({
         {activeTab === "intelligence" && (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-700">
             <header>
-                <h2 className="text-3xl lg:text-5xl font-[1000] text-white tracking-tighter leading-[0.85]">Hello,<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 pr-4 uppercase tracking-tight">{session.user?.name}</span></h2>
+                <h2 className="text-3xl lg:text-5xl font-[1000] text-white tracking-tighter leading-[0.85]">Hello,<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 pr-4 tracking-tight">{session.user?.name}</span></h2>
                 <div className="inline-flex items-center gap-2 mt-10 px-4 py-2 bg-white/[0.03] border border-white/[0.08] rounded-2xl">
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.4)]" />
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Neural Link: Stable</span>
