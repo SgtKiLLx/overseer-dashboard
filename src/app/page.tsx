@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 
 // MASTER CONFIG: Set your server ID here
-const TARGET_GUILD_ID = "1488536840263700580";
+const TARGET_GUILD_ID = "1488515896807919667";
 
 export default async function AdminDashboard({
   searchParams,
