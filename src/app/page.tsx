@@ -99,7 +99,7 @@ export default async function AdminDashboard({
           <SidebarLink href="/?tab=roster" icon={<Users size={20}/>} label="Survivor Roster" active={activeTab === "roster"} />
           <SidebarLink href="/?tab=alpha" icon={<Crown size={20}/>} label="Alpha Protocols" active={activeTab === "alpha"} />
           <SidebarLink href="/?tab=settings" icon={<Settings size={20}/>} label="System Config" active={activeTab === "settings"} />
-          <SidebarLink href="/?tab=manual" icon={<BookOpen size={20}/>} label="Bot Manual" active={activeTab === "manual"} />
+          
         </nav>
       </aside>
 
