@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu, X, LayoutDashboard, Map as MapIcon, Users, Crown, Settings, Shield, LogOut, BookOpen, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function MobileMenu({ session }: any) {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,53 +22,79 @@ export default function MobileMenu({ session }: any) {
 
   return (
     <>
-      {/* AI Studio Style Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-[60] bg-[#0f0f0f] border-b border-white/10 px-4 h-14 flex justify-between items-center">
+      {/* MOBILE HEADER */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-[60] bg-[#0f0f0f]/80 backdrop-blur-xl border-b border-white/10 px-4 h-14 flex justify-between items-center">
         <div className="flex items-center gap-3">
-            <button onClick={() => setIsOpen(true)} className="p-2 -ml-2 text-slate-400 hover:text-white">
+            <button onClick={() => setIsOpen(true)} className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
                 <Menu size={20} />
             </button>
-            <span className="text-sm font-bold tracking-tight text-white uppercase italic">Overseer</span>
-            <ChevronRight size={14} className="text-slate-600" />
+            <span className="text-sm font-bold text-white uppercase italic tracking-tighter">Overseer</span>
+            <ChevronRight size={12} className="text-slate-700" />
             <span className="text-xs font-medium text-cyan-400 capitalize">{activeTab}</span>
         </div>
-        <img src={session?.user?.image || ""} className="w-8 h-8 rounded-full border border-white/10" alt="Admin" />
+        <img src={session?.user?.image || ""} className="w-8 h-8 rounded-full border border-white/10 shadow-lg" alt="Admin" />
       </div>
 
-      {/* The Sidebar Drawer */}
-      <div className={`fixed inset-0 z-[100] transition-all duration-300 ${isOpen ? "visible" : "invisible"}`}>
-        <div className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0"}`} onClick={() => setIsOpen(false)} />
-        
-        <aside className={`absolute top-0 left-0 bottom-0 w-72 bg-[#0f0f0f] shadow-2xl transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
-            <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                    <Shield size={18} className="text-cyan-400" />
-                    <span className="font-bold text-white uppercase italic text-sm">Overseer OS</span>
+      {/* DRAWER SYSTEM */}
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[100]">
+            {/* Backdrop Fade */}
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsOpen(false)}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            {/* Sidebar Slide */}
+            <motion.aside 
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="absolute top-0 left-0 bottom-0 w-80 bg-[#080808] border-r border-white/10 p-6 flex flex-col shadow-2xl"
+            >
+                <div className="flex items-center justify-between mb-10">
+                    <div className="flex items-center gap-3">
+                        <Shield size={20} className="text-cyan-400" />
+                        <span className="font-black text-white uppercase italic text-sm tracking-widest">Overseer OS</span>
+                    </div>
+                    <button onClick={() => setIsOpen(false)} className="p-2 text-slate-500 hover:text-white"><X size={20}/></button>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="text-slate-500"><X size={20}/></button>
-            </div>
 
-            <nav className="p-4 space-y-1">
-                {navLinks.map((link) => (
-                    <Link 
-                        key={link.id}
-                        href={`/?tab=${link.id}`} 
-                        onClick={() => setIsOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === link.id ? 'bg-cyan-500/10 text-cyan-400' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
-                    >
-                        {link.icon}
-                        {link.label}
+                <nav className="space-y-1">
+                    {navLinks.map((link) => (
+                        <Link 
+                            key={link.id}
+                            href={`/?tab=${link.id}`} 
+                            onClick={() => setIsOpen(false)}
+                            className={`relative flex items-center gap-4 px-6 py-4 rounded-xl text-sm font-bold transition-colors duration-300 ${activeTab === link.id ? 'text-black' : 'text-slate-500 hover:text-white'}`}
+                        >
+                            {/* THE SLIDING GLOW INDICATOR */}
+                            {activeTab === link.id && (
+                                <motion.div 
+                                    layoutId="active-pill-mobile"
+                                    className="absolute inset-0 z-0 bg-white rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                            <span className="relative z-10">{link.icon}</span>
+                            <span className="relative z-10 uppercase tracking-tight italic">{link.label}</span>
+                        </Link>
+                    ))}
+                </nav>
+
+                <div className="mt-auto pt-6 border-t border-white/5">
+                    <Link href="/api/auth/signout" className="flex items-center gap-3 px-4 py-3 text-red-500 text-xs font-black uppercase italic hover:bg-red-500/5 rounded-lg transition-all">
+                        <LogOut size={16} /> Terminate Session
                     </Link>
-                ))}
-            </nav>
-
-            <div className="mt-auto p-4 border-t border-white/5">
-                <Link href="/api/auth/signout" className="flex items-center gap-3 px-4 py-3 text-red-400 text-sm font-medium hover:bg-red-500/5 rounded-lg">
-                    <LogOut size={18} /> Logout
-                </Link>
-            </div>
-        </aside>
-      </div>
+                </div>
+            </motion.aside>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
