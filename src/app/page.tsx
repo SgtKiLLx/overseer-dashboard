@@ -67,6 +67,14 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
     revalidatePath("/");
   }
 
+  async function denyAlpha(formData: FormData) {
+    "use server";
+    const id = Number(formData.get("id"));
+  // This removes the claim from the database entirely
+    await db.delete(alphaClaimsTable).where(eq(alphaClaimsTable.id, id));
+    revalidatePath("/");
+  }
+  
   async function updateConfig(formData: FormData) {
     "use server";
     const gId = formData.get("guildId") as string;
@@ -196,27 +204,97 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
 
             {/* SECTOR 4: ALPHA CLAIMS */}
             {activeTab === "alpha" && (
-                <div className="space-y-6 animate-in fade-in duration-500">
-                    <h3 className="text-2xl font-bold text-white tracking-tight">Alpha Protocols</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {alphaClaims.length === 0 && <p className="text-slate-600 italic text-sm p-10 border border-dashed border-white/10 rounded-xl text-center">No pending requests detected.</p>}
-                        {alphaClaims.map(claim => (
-                            <div key={claim.id} className={`bg-[#0f0f0f] border border-white/10 p-6 rounded-xl space-y-4 ${claim.status === 'approved' ? 'opacity-40 grayscale' : ''}`}>
-                                <div className="flex justify-between items-center">
-                                    <h4 className="font-bold text-white">{claim.tribeName}</h4>
-                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${claim.status === 'approved' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>{claim.status}</span>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 text-[11px] font-medium">
-                                    <div className="bg-white/5 p-2 rounded">Coords: <span className="text-white font-bold ml-1">{claim.coordinates}</span></div>
-                                    <div className="bg-white/5 p-2 rounded">Units: <span className="text-white font-bold ml-1">{claim.memberCount}</span></div>
-                                </div>
-                                {claim.status === 'pending' && (
-                                    <form action={verifyAlpha}><input type="hidden" name="id" value={claim.id}/><button className="w-full bg-white text-black font-bold py-2.5 rounded hover:bg-cyan-400 transition text-xs tracking-wide">Authorize Authority</button></form>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
+  <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    
+    {/* LEFT SIDE: INTELLIGENCE LOGS (2/3) */}
+    <div className="xl:col-span-2 space-y-6">
+      <h3 className="text-xl font-bold text-white px-2">Intelligence Logs</h3>
+      <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-white/5 text-[10px] uppercase font-bold text-slate-500 tracking-widest border-b border-white/5">
+            <tr>
+              <th className="p-4">Timestamp</th>
+              <th className="p-4">Protocol</th>
+              <th className="p-4">Subject</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5 font-mono text-[12px]">
+            {/* Using registrations as a "Recent Activity" log */}
+            {registrations.slice(0, 10).map((reg) => (
+              <tr key={reg.id} className="hover:bg-white/[0.02]">
+                <td className="p-4 text-slate-600">
+                  {new Date(reg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </td>
+                <td className="p-4">
+                  <span className="text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded text-[10px] font-bold">
+                    SIGNATURE_REG
+                  </span>
+                </td>
+                <td className="p-4 text-slate-300">
+                  {reg.ign} joined <span className="text-white font-bold">{reg.tribeName}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {/* RIGHT SIDE: ALPHA CLAIMS (1/3) */}
+    <div className="space-y-6">
+      <h3 className="text-xl font-bold text-white px-2 text-amber-500">Pending Authorization</h3>
+      <div className="space-y-4">
+        {alphaClaims.length === 0 && (
+          <div className="p-10 border border-dashed border-white/10 rounded-2xl text-center text-slate-600 italic text-sm">
+            No active claims in sector.
+          </div>
+        )}
+        
+        {alphaClaims.map(claim => (
+          <div key={claim.id} className={`bg-[#0f0f0f] border border-white/10 p-6 rounded-2xl space-y-5 transition-all shadow-xl ${claim.status === 'approved' ? 'opacity-40 grayscale' : ''}`}>
+            <div className="flex justify-between items-center">
+              <h4 className="font-bold text-white text-lg">{claim.tribeName}</h4>
+              <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${claim.status === 'approved' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                {claim.status}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-[11px]">
+              <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                <p className="text-slate-500 uppercase text-[9px] mb-1">Coords</p>
+                <p className="font-bold text-white">{claim.coordinates}</p>
+              </div>
+              <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                <p className="text-slate-500 uppercase text-[9px] mb-1">Units</p>
+                <p className="font-bold text-white">{claim.memberCount}</p>
+              </div>
+            </div>
+
+            {/* ACTION BUTTONS */}
+            {claim.status === 'pending' && (
+              <div className="flex gap-2 pt-2">
+                <form action={verifyAlpha} className="flex-1">
+                  <input type="hidden" name="id" value={claim.id} />
+                  <button type="submit" className="w-full bg-white text-black font-bold py-2.5 rounded-xl hover:bg-cyan-400 transition text-xs uppercase tracking-wide">
+                    Authorize
+                  </button>
+                </form>
+
+                <form action={denyAlpha}>
+                  <input type="hidden" name="id" value={claim.id} />
+                  <button type="submit" className="px-4 bg-red-500/10 text-red-500 font-bold py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition text-xs uppercase tracking-wide">
+                    Deny
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </div>
+)}
             )}
 
             {/* SECTOR 5: MANUAL */}
