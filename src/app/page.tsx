@@ -99,7 +99,7 @@ export default async function AdminDashboard({
           <SidebarLink href="/?tab=roster" icon={<Users size={20}/>} label="Survivor Roster" active={activeTab === "roster"} />
           <SidebarLink href="/?tab=alpha" icon={<Crown size={20}/>} label="Alpha Protocols" active={activeTab === "alpha"} />
           <SidebarLink href="/?tab=settings" icon={<Settings size={20}/>} label="System Config" active={activeTab === "settings"} />
-          
+          <SidebarLink href="/?tab=manual" icon={<BookOpen size={20}/>} label="Bot Manual" active={activeTab === "manual"} />
         </nav>
       </aside>
 
@@ -223,44 +223,7 @@ export default async function AdminDashboard({
            </div>
         )}
 
-         {/* TAB 6: BOT MANUAL */}
-         {activeTab === "manual" && (
-          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
-            <header className="px-2">
-                <h3 className="text-3xl font-[1000] uppercase text-white tracking-tighter italic">System Manual</h3>
-                <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Version 1.5 // Build: Master Elite</p>
-            </header>
-
-            {/* Survivor Protocols */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {overseerData.protocols.public_survivor_commands.map((cmd) => (
-                    <div key={cmd.command} className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-[32px]">
-                        <code className="text-cyan-400 font-bold text-lg">{cmd.command}</code>
-                        <p className="text-slate-400 text-sm mt-2">{cmd.description}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* Staff Protocols */}
-            <div className="bg-[#050505] border border-white/[0.05] rounded-[40px] overflow-hidden">
-                <div className="p-6 bg-white/[0.02] border-b border-white/[0.05]">
-                    <h4 className="text-red-500 text-xs font-black uppercase tracking-[0.4em]">Restricted_Staff_Protocols</h4>
-                </div>
-                <table className="w-full text-left">
-                    <tbody className="divide-y divide-white/[0.02]">
-                        {overseerData.protocols.staff_restricted_commands.map((cmd) => (
-                            <tr key={cmd.command}>
-                                <td className="p-6">
-                                    <code className="text-red-400 font-bold">{cmd.command}</code>
-                                    <p className="text-xs text-slate-500 mt-1">{cmd.description}</p>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-          </div>
-        )}
+         
     </main>
     </div>
   );
