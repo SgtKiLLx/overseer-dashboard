@@ -19,6 +19,7 @@
     "react-dom": "^18",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.3.0"
+    "framer-motion": "^11.1.7"
   },
   "devDependencies": {
     "@types/node": "^20",
