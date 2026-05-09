@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import MobileMenu from "@/components/MobileMenu";
+import PageAnimate from "@/components/PageAnimate";
 
 const TARGET_GUILD_ID = "1488515896807919667";
 
@@ -139,6 +140,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
             
             {/* SECTOR 1: INTELLIGENCE */}
             {activeTab === "intelligence" && (
+               <PageAnimate id="intelligence">
                 <div className="space-y-8 animate-in fade-in duration-500">
                     <h2 className="text-4xl font-bold text-white tracking-tight leading-tight">
                         Welcome back, <br/>
@@ -152,11 +154,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                         <StatCard label="Alpha Claims" value={alphaClaims.length} icon={<Crown size={20} className="text-amber-500"/>} />
                     </div>
                 </div>
+               </PageAnimate>  
             )}
 
             {/* SECTOR 2: STRATEGIC MAP */}
             {activeTab === "map" && (
-                <div className="space-y-6 animate-in fade-in duration-500">
+              <PageAnimate id="map">  
+              <div className="space-y-6 animate-in fade-in duration-500">
                     <h3 className="text-2xl font-bold text-white tracking-tight">Strategic Map</h3>
                     <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl p-4 shadow-2xl relative overflow-hidden">
                         <div className="relative aspect-square w-full bg-slate-900 rounded-xl overflow-hidden border border-white/5">
@@ -174,11 +178,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                         </div>
                     </div>
                 </div>
-            )}
+                </PageAnimate>
+                )}
 
             {/* SECTOR 3: ROSTER */}
             {activeTab === "roster" && (
-                <div className="space-y-6 animate-in fade-in duration-500">
+             <PageAnimate id="roster">   
+             <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="flex items-center justify-between">
                         <h3 className="text-2xl font-bold text-white tracking-tight">Survivor Database</h3>
                         <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-1.5 gap-2">
@@ -208,11 +214,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                         </table>
                     </div>
                 </div>
-            )}
+             </PageAnimate>
+               )}
 
             {/* SECTOR 4: ALPHA PROTOCOLS (WITH LOG TABLE AND DENY) */}
             {activeTab === "alpha" && (
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 animate-in fade-in duration-500">
+              <PageAnimate id="alpha">  
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 animate-in fade-in duration-500">
                     {/* LEFT: INTELLIGENCE LOGS */}
                     <div className="xl:col-span-2 space-y-6">
                         <h3 className="text-2xl font-bold text-white">Intelligence Logs</h3>
@@ -272,11 +280,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                         </div>
                     </div>
                 </div>
+              </PageAnimate>
             )}
 
             {/* SECTOR 5: MANUAL */}
             {activeTab === "manual" && (
-                <div className="space-y-6 animate-in fade-in duration-500">
+             <PageAnimate id="manual">  
+             <div className="space-y-6 animate-in fade-in duration-500">
                     <h3 className="text-2xl font-bold text-white tracking-tight">System Manual</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {overseerData.protocols.public_survivor_commands.map(cmd => (
@@ -296,11 +306,13 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                         ))}
                     </div>
                 </div>
-            )}
+             </PageAnimate>
+          )}
 
             {/* SECTOR 6: CONFIGURATION */}
             {activeTab === "settings" && (
-                <div className="space-y-6 animate-in fade-in duration-500">
+               <PageAnimate id="settings"> 
+                 <div className="space-y-6 animate-in fade-in duration-500">
                     <h3 className="text-2xl font-bold text-white tracking-tight">Configuration</h3>
                     <form action={updateConfig} className="bg-[#0f0f0f] border border-white/10 rounded-xl p-8 space-y-6 max-w-4xl shadow-2xl">
                         <input type="hidden" name="guildId" value={TARGET_GUILD_ID} />
@@ -319,7 +331,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                         </button>
                     </form>
                 </div>
-            )}
+               </PageAnimate>
+          )}
         </div>
       </main>
     </div>
