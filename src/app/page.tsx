@@ -10,34 +10,37 @@ import { Suspense } from "react";
 import MobileMenu from "@/components/MobileMenu";
 import PageAnimate from "@/components/PageAnimate";
 
+// MASTER CONFIG: Your unique Server ID
 const TARGET_GUILD_ID = "1488515896807919667";
 
-// --- BOT MANUAL DATA ---
+// --- MASTER SYSTEM MANUAL DATA ---
 const overseerData = {
   protocols: {
     public_survivor_commands: [
-      { "command": "/register", "description": "Initialize a new tribe signature. Holds in pending for staff audit." },
+      { "command": "/register", "description": "Initialize a new tribe signature. Processed via the Gatekeeper protocol." },
       { "command": "/join", "parameters": ["tribe_name"], "description": "Sync signature with an existing verified tribe." },
-      { "command": "/lft", "description": "Deploy recruitment resume to the central recruitment feed." },
-      { "command": "/my-tribe", "description": "Access your verified signature, Xbox credentials, and balance." },
-      { "command": "/leave-tribe", "description": "Exit current tribe roster and revoke private HQ access." },
-      { "command": "/bal", "description": "Check Tek Coin holdings (passive earn active)." },
-      { "command": "/shop", "description": "Browse the active Tek-Market inventory." },
-      { "command": "/buy", "parameters": ["item"], "description": "Authorize purchase and notify staff for delivery." },
-      { "command": "/pay", "parameters": ["target", "amount"], "description": "Transfer Tek Coins between signatures." },
-      { "command": "/bounty", "parameters": ["tribe", "amount"], "description": "Place a coin reward on a rival tribe." },
-      { "command": "/help", "description": "Display system technical manual." }
+      { "command": "/lft", "description": "Deploy a recruitment resume to the server recruitment feed." },
+      { "command": "/my-tribe", "description": "Access your verified signature, Xbox credentials, and coin balance." },
+      { "command": "/leave-tribe", "description": "Permanently exit your current tribe roster and revoke HQ access." },
+      { "command": "/bal", "description": "View Tek Coin holdings (passive activity rewards active)." },
+      { "command": "/shop", "description": "Browse the active Tek-Market inventory of assets and kits." },
+      { "command": "/buy", "parameters": ["item"], "description": "Authorize a market purchase and notify staff for delivery." },
+      { "command": "/pay", "parameters": ["target", "amount"], "description": "Transfer Tek Coins between survivor signatures." },
+      { "command": "/bounty", "parameters": ["tribe", "amount"], "description": "Place a coin reward on a rival tribe signature." },
+      { "command": "/help", "description": "Display the technical manual for all Overseer systems." }
     ],
     staff_restricted_commands: [
-      { "command": "/setup", "description": "Master sector configuration for all bot channels." },
-      { "command": "/list-tribes", "description": "Full server-wide audit of all signatures and Xbox IDs." },
+      { "command": "/setup", "description": "Master sector configuration (Logs, Welcome, Rules, Recruitment, etc)." },
+      { "command": "/list-tribes", "description": "Generate a server-wide audit of all signatures and Xbox IDs." },
       { "command": "/kick-member", "parameters": ["target"], "description": "Force signature removal and revoke HQ permissions." },
-      { "command": "/add-coins", "parameters": ["target", "amount"], "description": "Administratively grant Tek Coins." },
-      { "command": "/add-item", "parameters": ["name", "price", "category"], "description": "Register asset in Tek-Market." },
-      { "command": "/remove-item", "parameters": ["item"], "description": "Purge market asset." },
-      { "command": "/post-info", "description": "Deploy registration buttons." },
-      { "command": "/post-support", "description": "Deploy SOS terminal." },
-      { "command": "/post-alpha-terminal", "description": "Deploy Alpha claim terminal." }
+      { "command": "/add-coins", "parameters": ["target", "amount"], "description": "Administratively grant Tek Coins for rewards or compensation." },
+      { "command": "/add-item", "parameters": ["name", "price", "category"], "description": "Register a new asset in the Tek-Market inventory." },
+      { "command": "/remove-item", "parameters": ["item"], "description": "Purge an asset signature from the market database." },
+      { "command": "/post-info", "description": "Deploy the primary Tribe Registration terminal." },
+      { "command": "/post-support", "description": "Deploy the SOS Support SOS terminal." },
+      { "command": "/post-alpha-terminal", "description": "Deploy the Alpha Status claim terminal." },
+      { "command": "/post-recruitment", "description": "Deploy the LFT matchmaking terminal." },
+      { "command": "/post-shop", "description": "Deploy the Tek-Market terminal." }
     ]
   }
 };
@@ -48,43 +51,60 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
 
   const activeTab = searchParams.tab || "intelligence";
 
-  // --- DATA FETCHING ---
+  // --- DATABASE QUERIES ---
   const registrations = await db.select().from(tribeRegistrationsTable).where(eq(tribeRegistrationsTable.guildId, TARGET_GUILD_ID)).orderBy(desc(tribeRegistrationsTable.createdAt));
   const alphaClaims = await db.select().from(alphaClaimsTable).where(eq(alphaClaimsTable.guildId, TARGET_GUILD_ID));
   const configs = await db.select().from(guildConfigTable).where(eq(guildConfigTable.guildId, TARGET_GUILD_ID));
   const config = configs[0];
   const tribeCount = new Set(registrations.filter(r => r.status === 'verified').map(r => r.tribeName)).size;
 
+  // --- COORDINATE LOGIC ---
+  const parseCoords = (c: string) => {
+    const p = c.split(/[, ]+/).map(x => parseFloat(x.trim()));
+    return { top: `${p[0]}%`, left: `${p[1]}%`, valid: !isNaN(p[0]) && !isNaN(p[1]) };
+  };
+
   // --- SERVER ACTIONS ---
   async function wipeSurvivor(formData: FormData) {
     "use server";
-    await db.delete(tribeRegistrationsTable).where(eq(tribeRegistrationsTable.id, Number(formData.get("id"))));
+    const id = Number(formData.get("id"));
+    await db.delete(tribeRegistrationsTable).where(eq(tribeRegistrationsTable.id, id));
     revalidatePath("/");
   }
 
   async function verifyAlpha(formData: FormData) {
     "use server";
-    await db.update(alphaClaimsTable).set({ status: "approved" }).where(eq(alphaClaimsTable.id, Number(formData.get("id"))));
+    const id = Number(formData.get("id"));
+    await db.update(alphaClaimsTable).set({ status: "approved" }).where(eq(alphaClaimsTable.id, id));
     revalidatePath("/");
   }
 
   async function denyAlpha(formData: FormData) {
     "use server";
-    await db.delete(alphaClaimsTable).where(eq(alphaClaimsTable.id, Number(formData.get("id"))));
+    const id = Number(formData.get("id"));
+    await db.delete(alphaClaimsTable).where(eq(alphaClaimsTable.id, id));
     revalidatePath("/");
   }
 
   async function updateConfig(formData: FormData) {
     "use server";
     const gId = formData.get("guildId") as string;
-    await db.insert(guildConfigTable).values({ guildId: gId, staffLogChannelId: formData.get("logs") as string, welcomeChannelId: formData.get("welcome") as string, rulesChannelId: formData.get("rules") as string, infoChannelId: formData.get("info") as string, recruitmentChannelId: formData.get("recruitment") as string, supportChannelId: formData.get("support") as string, tribeCategoryId: formData.get("category") as string, adminRoleIds: formData.get("role") as string }).onConflictDoUpdate({ target: guildConfigTable.guildId, set: { staffLogChannelId: formData.get("logs") as string, welcomeChannelId: formData.get("welcome") as string, rulesChannelId: formData.get("rules") as string, infoChannelId: formData.get("info") as string, recruitmentChannelId: formData.get("recruitment") as string, supportChannelId: formData.get("support") as string, tribeCategoryId: formData.get("category") as string, adminRoleIds: formData.get("role") as string, updatedAt: new Date() } });
+    await db.insert(guildConfigTable).values({ 
+        guildId: gId, 
+        staffLogChannelId: formData.get("logs") as string, 
+        welcomeChannelId: formData.get("welcome") as string, 
+        rulesChannelId: formData.get("rules") as string, 
+        infoChannelId: formData.get("info") as string, 
+        recruitmentChannelId: formData.get("recruitment") as string, 
+        supportChannelId: formData.get("support") as string, 
+        tribeCategoryId: formData.get("category") as string, 
+        adminRoleIds: formData.get("role") as string 
+    }).onConflictDoUpdate({ 
+        target: guildConfigTable.guildId, 
+        set: { staffLogChannelId: formData.get("logs") as string, welcomeChannelId: formData.get("welcome") as string, rulesChannelId: formData.get("rules") as string, infoChannelId: formData.get("info") as string, recruitmentChannelId: formData.get("recruitment") as string, supportChannelId: formData.get("support") as string, tribeCategoryId: formData.get("category") as string, adminRoleIds: formData.get("role") as string, updatedAt: new Date() } 
+    });
     revalidatePath("/");
   }
-
-  const parseCoords = (c: string) => {
-    const p = c.split(/[, ]+/).map(x => parseFloat(x.trim()));
-    return { top: `${p[0]}%`, left: `${p[1]}%`, valid: !isNaN(p[0]) && !isNaN(p[1]) };
-  };
 
   return (
     <div className="min-h-screen bg-[#000] text-slate-300 font-sans flex selection:bg-cyan-500/30">
@@ -92,12 +112,9 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
       {/* DESKTOP SIDEBAR */}
       <aside className="w-64 bg-[#0f0f0f] border-r border-white/10 hidden lg:flex flex-col sticky top-0 h-screen shadow-2xl">
         <div className="h-14 flex items-center px-6 border-b border-white/10 gap-3">
-          <div className="w-7 h-7 bg-white/[0.03] border border-white/10 rounded-lg flex items-center justify-center">
-             <img src="/icon.png" className="w-5 h-5 object-contain" alt="O" />
-          </div>
-          <span className="font-bold text-white text-sm tracking-tight">Overseer</span>
+          <Shield size={18} className="text-cyan-400" />
+          <span className="font-bold text-white text-sm tracking-tight">Overseer Console</span>
         </div>
-
         <nav className="p-4 space-y-1">
           <SidebarLink href="/?tab=intelligence" icon={<LayoutDashboard size={18}/>} label="Intelligence" active={activeTab === "intelligence"} />
           <SidebarLink href="/?tab=map" icon={<MapIcon size={18}/>} label="Strategic Map" active={activeTab === "map"} />
@@ -106,64 +123,51 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
           <SidebarLink href="/?tab=manual" icon={<BookOpen size={18}/>} label="System Manual" active={activeTab === "manual"} />
           <SidebarLink href="/?tab=settings" icon={<Settings size={18}/>} label="Configuration" active={activeTab === "settings"} />
         </nav>
-
         <div className="mt-auto p-4 border-t border-white/10 bg-black/20">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <img src={session.user?.image || ""} className="w-8 h-8 rounded-full border border-white/10" alt="User" />
+          <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-lg">
+            <img src={session.user?.image || ""} className="w-8 h-8 rounded-full border border-white/10" alt="U" />
             <span className="text-xs font-bold text-white truncate">{session.user?.name}</span>
           </div>
         </div>
       </aside>
 
-      <Suspense fallback={<div className="h-14 bg-[#0f0f0f] w-full lg:hidden" />}>
+      <Suspense fallback={<div className="h-14 bg-[#0f0f0f] w-full lg:hidden border-b border-white/10" />}>
         <MobileMenu session={session} />
       </Suspense>
 
       <main className="flex-1 min-w-0 overflow-y-auto">
         {/* TOP BAR */}
         <div className="h-14 border-b border-white/10 bg-[#0f0f0f] px-6 hidden lg:flex items-center justify-between sticky top-0 z-50">
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 tracking-wide">
-                <span>Console</span>
-                <ChevronRight size={12} />
-                <span className="text-cyan-400 capitalize">{activeTab}</span>
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                <span>Console</span><ChevronRight size={12} /><span className="text-cyan-400 capitalize">{activeTab}</span>
             </div>
             <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded text-[10px] font-bold text-green-500">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    System Active
+                <div className="flex items-center gap-2 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded text-[10px] font-black text-green-500">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> SYSTEM_ACTIVE
                 </div>
-                <Bell size={18} className="text-slate-500 hover:text-white cursor-pointer transition-colors" />
             </div>
         </div>
 
         <div className="p-6 lg:p-10 pt-20 lg:pt-10 max-w-6xl mx-auto space-y-10 pb-32">
             
-            {/* SECTOR 1: INTELLIGENCE */}
+            {/* TAB: INTELLIGENCE */}
             {activeTab === "intelligence" && (
-               <PageAnimate id="intelligence">
-                <div className="space-y-8 animate-in fade-in duration-500">
-                    <h2 className="text-4xl font-bold text-white tracking-tight leading-tight">
-                        Welcome back, <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-500 pr-4">
-                            {session.user?.name}
-                        </span>
-                    </h2>
+                <PageAnimate id="intelligence">
+                    <h2 className="text-3xl font-bold text-white mb-8">Welcome back, <span className="text-cyan-400">{session.user?.name}</span></h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <StatCard label="Verified Tribes" value={tribeCount} icon={<Shield size={20} className="text-cyan-500"/>} />
                         <StatCard label="Total Roster" value={registrations.length} icon={<Users size={20} className="text-blue-500"/>} />
-                        <StatCard label="Alpha Claims" value={alphaClaims.length} icon={<Crown size={20} className="text-amber-500"/>} />
+                        <StatCard label="Alpha Entries" value={alphaClaims.length} icon={<Crown size={20} className="text-amber-500"/>} />
                     </div>
-                </div>
-               </PageAnimate>  
+                </PageAnimate>
             )}
 
-            {/* SECTOR 2: STRATEGIC MAP */}
+            {/* TAB: STRATEGIC MAP */}
             {activeTab === "map" && (
-              <PageAnimate id="map">  
-              <div className="space-y-6 animate-in fade-in duration-500">
-                    <h3 className="text-2xl font-bold text-white tracking-tight">Strategic Map</h3>
-                    <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl p-4 shadow-2xl relative overflow-hidden">
-                        <div className="relative aspect-square w-full bg-slate-900 rounded-xl overflow-hidden border border-white/5">
+                <PageAnimate id="map">
+                    <h3 className="text-xl font-bold text-white mb-6 uppercase tracking-tight italic">Strategic Map</h3>
+                    <div className="bg-[#0f0f0f] border border-white/10 rounded-xl p-3 shadow-2xl relative overflow-hidden">
+                        <div className="relative aspect-square w-full bg-slate-900 rounded-lg overflow-hidden border border-white/5">
                             <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: "url('https://ark.wiki.gg/images/c/cc/Fjordur_Topographic_Map.jpg')" }} />
                             {alphaClaims.filter(c => c.status === 'approved').map(claim => {
                                 const pos = parseCoords(claim.coordinates);
@@ -177,144 +181,109 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                             })}
                         </div>
                     </div>
-                </div>
                 </PageAnimate>
-                )}
+            )}
 
-            {/* SECTOR 3: ROSTER */}
+            {/* TAB: ROSTER */}
             {activeTab === "roster" && (
-             <PageAnimate id="roster">   
-             <div className="space-y-6 animate-in fade-in duration-500">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-2xl font-bold text-white tracking-tight">Survivor Database</h3>
-                        <div className="flex items-center bg-[#1a1a1a] border border-white/10 rounded-lg px-3 py-1.5 gap-2">
-                            <Search size={14} className="text-slate-500" />
-                            <input className="bg-transparent border-none outline-none text-xs w-48" placeholder="Search roster..." />
-                        </div>
-                    </div>
-                    <div className="bg-[#0f0f0f] border border-white/10 rounded-xl overflow-hidden shadow-xl overflow-x-auto touch-pan-x">
+                <PageAnimate id="roster">
+                    <h3 className="text-xl font-bold text-white mb-6">Survivor Database</h3>
+                    <div className="bg-[#0f0f0f] border border-white/10 rounded-lg overflow-hidden shadow-xl overflow-x-auto touch-pan-x">
                         <table className="w-full text-left text-sm min-w-[600px]">
                             <thead className="bg-white/5 text-[10px] uppercase font-bold text-slate-500 tracking-widest border-b border-white/5">
-                                <tr><th className="p-4">Tribe Signature</th><th className="p-4">Survivor Details</th><th className="p-4 text-right">Delete</th></tr>
+                                <tr><th className="p-4">Tribe</th><th className="p-4">Survivor Details</th><th className="p-4 text-right">Delete</th></tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
                                 {registrations.map(reg => (
                                     <tr key={reg.id} className="hover:bg-white/[0.02] transition-colors">
-                                        <td className="p-4 font-bold text-white uppercase">{reg.tribeName}</td>
+                                        <td className="p-4 font-bold text-white uppercase text-xs">{reg.tribeName}</td>
                                         <td className="p-4 text-slate-400">
                                             <p className="font-medium text-white">{reg.ign}</p>
-                                            <p className="text-[10px] text-cyan-800 font-mono uppercase tracking-tight">{reg.xboxGamertag} • {reg.status}</p>
+                                            <p className="text-[10px] text-cyan-800 font-mono">{reg.xboxGamertag} • {reg.status}</p>
                                         </td>
                                         <td className="p-4 text-right">
-                                            <form action={wipeSurvivor}><input type="hidden" name="id" value={reg.id}/><button className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"><Trash2 size={16}/></button></form>
+                                            <form action={wipeSurvivor}><input type="hidden" name="id" value={reg.id}/><button className="p-2 text-red-500 hover:bg-red-500/10 rounded-md transition-all active:scale-90"><Trash2 size={16}/></button></form>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                </div>
-             </PageAnimate>
-               )}
+                </PageAnimate>
+            )}
 
-            {/* SECTOR 4: ALPHA PROTOCOLS (WITH LOG TABLE AND DENY) */}
+            {/* TAB: ALPHA & INTELLIGENCE LOGS */}
             {activeTab === "alpha" && (
-              <PageAnimate id="alpha">  
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 animate-in fade-in duration-500">
-                    {/* LEFT: INTELLIGENCE LOGS */}
-                    <div className="xl:col-span-2 space-y-6">
-                        <h3 className="text-2xl font-bold text-white">Intelligence Logs</h3>
-                        <div className="bg-[#0f0f0f] border border-white/10 rounded-xl overflow-hidden shadow-xl">
-                            <table className="w-full text-left text-xs">
-                                <thead className="bg-white/5 text-[10px] uppercase font-bold text-slate-500 tracking-widest border-b border-white/5">
-                                    <tr><th className="p-4">Protocol</th><th className="p-4">Subject</th><th className="p-4">Timestamp</th></tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5 font-mono">
-                                    {registrations.slice(0, 15).map(reg => (
-                                        <tr key={reg.id} className="hover:bg-white/[0.01]">
-                                            <td className="p-4 text-cyan-500 font-bold">SIGNATURE_REG</td>
-                                            <td className="p-4 text-slate-300">{reg.ign} synced with {reg.tribeName}</td>
-                                            <td className="p-4 text-slate-600 italic">{new Date(reg.createdAt).toLocaleTimeString()}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                <PageAnimate id="alpha">
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                        <div className="xl:col-span-2 space-y-6">
+                            <h3 className="text-xl font-bold text-white">Intelligence Logs</h3>
+                            <div className="bg-[#0f0f0f] border border-white/10 rounded-lg overflow-hidden shadow-xl">
+                                <table className="w-full text-left text-[11px]">
+                                    <thead className="bg-white/5 text-slate-500 font-bold uppercase border-b border-white/5">
+                                        <tr><th className="p-4">Subject</th><th className="p-4">Timestamp</th></tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5 font-mono">
+                                        {registrations.slice(0, 10).map(reg => (
+                                            <tr key={reg.id} className="hover:bg-white/[0.01]">
+                                                <td className="p-4 text-slate-300">{reg.ign} synced with {reg.tribeName}</td>
+                                                <td className="p-4 text-slate-600">{new Date(reg.createdAt).toLocaleTimeString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-
-                    {/* RIGHT: ALPHA CLAIMS */}
-                    <div className="space-y-6">
-                        <h3 className="text-2xl font-bold text-amber-500">Alpha Status</h3>
-                        <div className="space-y-4">
-                            {alphaClaims.length === 0 && <p className="text-slate-600 italic text-sm p-10 border border-dashed border-white/10 rounded-xl text-center">No pending claims.</p>}
+                        <div className="space-y-6">
+                            <h3 className="text-xl font-bold text-amber-500">Alpha Status</h3>
                             {alphaClaims.map(claim => (
-                                <div key={claim.id} className={`bg-[#0f0f0f] border border-white/10 p-6 rounded-2xl space-y-5 transition-all shadow-xl ${claim.status === 'approved' ? 'opacity-40 grayscale' : ''}`}>
-                                    <div className="flex justify-between items-center">
-                                        <h4 className="font-bold text-white text-lg">{claim.tribeName}</h4>
-                                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${claim.status === 'approved' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>{claim.status}</span>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3 text-[11px]">
-                                        <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                                            <p className="text-slate-500 uppercase text-[9px] mb-1">Grid_Coords</p>
-                                            <p className="font-bold text-white">{claim.coordinates}</p>
-                                        </div>
-                                        <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                                            <p className="text-slate-500 uppercase text-[9px] mb-1">Units</p>
-                                            <p className="font-bold text-white">{claim.memberCount}</p>
-                                        </div>
+                                <div key={claim.id} className={`bg-[#0f0f0f] border border-white/10 p-5 rounded-xl space-y-4 ${claim.status === 'approved' ? 'opacity-40 grayscale' : ''}`}>
+                                    <h4 className="font-bold text-white uppercase text-sm">{claim.tribeName}</h4>
+                                    <div className="grid grid-cols-2 gap-2 text-[10px] bg-white/5 p-2 rounded">
+                                        <div>Coords: {claim.coordinates}</div><div>Units: {claim.memberCount}</div>
                                     </div>
                                     {claim.status === 'pending' && (
                                         <div className="flex gap-2">
-                                            <form action={verifyAlpha} className="flex-1">
-                                                <input type="hidden" name="id" value={claim.id} />
-                                                <button type="submit" className="w-full bg-white text-black font-bold py-2 rounded-xl hover:bg-cyan-400 transition text-[10px] uppercase">Authorize</button>
-                                            </form>
-                                            <form action={denyAlpha}>
-                                                <input type="hidden" name="id" value={claim.id} />
-                                                <button type="submit" className="px-4 bg-red-500/10 text-red-500 font-bold py-2 rounded-xl hover:bg-red-500 hover:text-white transition text-[10px] uppercase">Deny</button>
-                                            </form>
+                                            <form action={verifyAlpha} className="flex-1"><input type="hidden" name="id" value={claim.id}/><button className="w-full bg-white text-black font-bold py-2 rounded text-[10px] uppercase active:scale-95">Authorize</button></form>
+                                            <form action={denyAlpha}><input type="hidden" name="id" value={claim.id}/><button className="w-full px-4 bg-red-500/10 text-red-500 font-bold py-2 rounded text-[10px] uppercase active:scale-95">Deny</button></form>
                                         </div>
                                     )}
                                 </div>
                             ))}
                         </div>
                     </div>
-                </div>
-              </PageAnimate>
+                </PageAnimate>
             )}
 
-            {/* SECTOR 5: MANUAL */}
+            {/* TAB: MANUAL */}
             {activeTab === "manual" && (
-             <PageAnimate id="manual">  
-             <div className="space-y-6 animate-in fade-in duration-500">
-                    <h3 className="text-2xl font-bold text-white tracking-tight">System Manual</h3>
+                <PageAnimate id="manual">
+                    <h3 className="text-xl font-bold text-white mb-8">System Manual</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {overseerData.protocols.public_survivor_commands.map(cmd => (
-                            <div key={cmd.command} className="bg-[#0f0f0f] border border-white/10 p-6 rounded-xl group hover:border-cyan-500/30 transition-colors">
+                            <div key={cmd.command} className="bg-[#0f0f0f] border border-white/10 p-5 rounded-lg">
                                 <code className="text-cyan-400 font-bold text-sm">{cmd.command}</code>
-                                <p className="text-xs text-slate-500 mt-2 leading-relaxed font-medium">{cmd.description}</p>
+                                <p className="text-xs text-slate-500 mt-2 leading-relaxed">{cmd.description}</p>
                             </div>
                         ))}
                     </div>
-                    <div className="bg-[#0f0f0f] border border-white/10 rounded-xl overflow-hidden mt-10">
-                        <div className="p-4 bg-white/5 border-b border-white/10 font-bold text-xs uppercase text-red-500">Authorized_Staff_Protocols</div>
+                    <div className="bg-[#0f0f0f] border border-white/10 rounded-xl overflow-hidden mt-8 shadow-xl">
+                        <div className="p-4 bg-white/5 border-b border-white/5 font-bold text-xs uppercase text-red-500">Restricted_Staff_Protocols</div>
                         {overseerData.protocols.staff_restricted_commands.map(cmd => (
-                            <div key={cmd.command} className="p-4 border-b border-white/5 last:border-0">
-                                <code className="text-red-400 font-bold text-xs">{cmd.command}</code>
-                                <p className="text-[11px] text-slate-600 mt-1 font-medium italic">{cmd.description}</p>
+                            <div key={cmd.command} className="p-4 border-b border-white/5 last:border-0 hover:bg-white/[0.01]">
+                                <code className="text-red-400 font-bold text-[11px] uppercase tracking-tighter">{cmd.command}</code>
+                                <p className="text-[10px] text-slate-600 mt-1">{cmd.description}</p>
                             </div>
                         ))}
                     </div>
-                </div>
-             </PageAnimate>
-          )}
+                </PageAnimate>
+            )}
 
-            {/* SECTOR 6: CONFIGURATION */}
+            {/* TAB: SETTINGS */}
             {activeTab === "settings" && (
-               <PageAnimate id="settings"> 
-                 <div className="space-y-6 animate-in fade-in duration-500">
-                    <h3 className="text-2xl font-bold text-white tracking-tight">Configuration</h3>
-                    <form action={updateConfig} className="bg-[#0f0f0f] border border-white/10 rounded-xl p-8 space-y-6 max-w-4xl shadow-2xl">
+                <PageAnimate id="settings">
+                    <h3 className="text-xl font-bold text-white mb-6">Configuration</h3>
+                    <form action={updateConfig} className="bg-[#0f0f0f] border border-white/10 rounded-lg p-8 space-y-6 max-w-4xl shadow-2xl">
                         <input type="hidden" name="guildId" value={TARGET_GUILD_ID} />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <ConfigInput label="Staff Log Channel" name="logs" defaultValue={config?.staffLogChannelId || ""} />
@@ -326,24 +295,19 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                             <ConfigInput label="Support Terminal" name="support" defaultValue={config?.supportChannelId || ""} />
                             <ConfigInput label="Master Admin Role" name="role" defaultValue={config?.adminRoleIds || ""} />
                         </div>
-                        <button type="submit" className="bg-white text-black font-bold px-8 py-3 rounded-lg hover:bg-cyan-400 transition-all text-xs tracking-widest flex items-center gap-2 shadow-lg">
-                            <Save size={16} /> Sync Protocols
-                        </button>
+                        <button type="submit" className="bg-cyan-500 text-black font-bold px-8 py-3 rounded hover:bg-cyan-400 transition text-xs tracking-widest flex items-center gap-2 shadow-lg active:scale-95"><Save size={16} /> Sync Protocols</button>
                     </form>
-                </div>
-               </PageAnimate>
-          )}
+                </PageAnimate>
+            )}
         </div>
       </main>
     </div>
   );
 }
 
-// --- UI COMPONENTS ---
-
 function SidebarLink({ href, icon, label, active }: any) {
   return (
-    <Link href={href} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${active ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}>
+    <Link href={href} className={`flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all active:scale-95 ${active ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-sm' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}>
       {icon} {label}
     </Link>
   );
@@ -351,9 +315,9 @@ function SidebarLink({ href, icon, label, active }: any) {
 
 function StatCard({ label, value, icon }: any) {
     return (
-        <div className="bg-[#0f0f0f] border border-white/10 p-6 rounded-xl space-y-4 hover:border-white/20 transition-all shadow-md">
+        <div className="bg-[#0f0f0f] border border-white/10 p-6 rounded-lg space-y-4 shadow-lg hover:border-white/20 transition-all">
             <div className="text-slate-500 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">{label} {icon}</div>
-            <div className="text-4xl font-bold text-white tracking-tight">{value}</div>
+            <div className="text-4xl font-bold text-white tracking-tighter">{value}</div>
         </div>
     )
 }
@@ -361,7 +325,7 @@ function StatCard({ label, value, icon }: any) {
 function ConfigInput({ label, name, defaultValue }: any) {
     return (
         <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider ml-1">{label}</label>
+            <label className="text-[10px] font-bold text-slate-600 uppercase ml-1">{label}</label>
             <input name={name} defaultValue={defaultValue} className="w-full bg-[#161616] border border-white/5 rounded-lg px-4 py-3 text-sm text-cyan-400 font-mono focus:outline-none focus:border-cyan-500/40 transition-all" />
         </div>
     )
