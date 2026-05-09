@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { tribeRegistrationsTable, alphaClaimsTable, guildConfigTable } from "@/lib/db/schema";
-import { Users, Shield, Crown, Activity, Trash2, CheckCircle, Search, Settings, Bell, LayoutDashboard, Map as MapIcon, Zap, Save, Hash, Lock, Coins } from "lucide-react";
+import { Users, Shield, Crown, Activity, Trash2, CheckCircle, Search, Settings, Bell, LayoutDashboard, Map as MapIcon, Zap, Save, Hash, Lock, Coins, BookOpen } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -9,6 +9,36 @@ import Link from "next/link";
 import MobileMenu from "@/components/MobileMenu"; // IMPORT NEW COMPONENT
 
 const TARGET_GUILD_ID = "1488515896807919667";
+const overseerData = {
+  protocols: {
+    public_survivor_commands: [
+      { "command": "/register", "description": "Initialize a new tribe signature." },
+      { "command": "/join", "parameters": ["tribe_name"], "description": "Sync signature with an existing verified tribe." },
+      { "command": "/lft", "description": "Deploy recruitment profile to #recruit-terminal." },
+      { "command": "/my-tribe", "description": "View verified signature, Xbox ID, and balance." },
+      { "command": "/leave-tribe", "description": "Exit tribe roster and revoke HQ access." },
+      { "command": "/bal", "description": "Check Tek Coin holdings." },
+      { "command": "/shop", "description": "Browse the active Tek-Market inventory." },
+      { "command": "/buy", "parameters": ["item"], "description": "Authorize purchase from market." },
+      { "command": "/pay", "parameters": ["target", "amount"], "description": "Transfer Tek Coins." },
+      { "command": "/bounty", "parameters": ["tribe", "amount"], "description": "Place reward on a rival tribe." }
+    ],
+    tribe_hq_buttons: [
+      { "id": "raid_alert", "label": "RAID ALERT", "action": "Alert Tribe & Logs" },
+      { "id": "view_roster", "label": "Roster", "action": "View Members" },
+      { "id": "add_task", "label": "Add Task", "action": "Post mission" },
+      { "id": "claim_kit", "label": "Claim Kit", "action": "Kit Request" }
+    ],
+    staff_restricted_commands: [
+      { "command": "/setup", "description": "Master sector configuration.", "parameters": ["role", "logs", "welcome", "rules", "info", "recruitment", "support", "category"] },
+      { "command": "/list-tribes", "description": "Audit all signatures and Xbox IDs." },
+      { "command": "/kick-member", "parameters": ["target"], "description": "Force signature removal." },
+      { "command": "/add-coins", "parameters": ["target", "amount"], "description": "Grant coins." },
+      { "command": "/add-item", "parameters": ["name", "price", "category"], "description": "Stock market." },
+      { "command": "/remove-item", "parameters": ["item"], "description": "Purge market asset." }
+    ]
+  }
+};
 
 export default async function AdminDashboard({
   searchParams,
@@ -69,6 +99,7 @@ export default async function AdminDashboard({
           <SidebarLink href="/?tab=roster" icon={<Users size={20}/>} label="Survivor Roster" active={activeTab === "roster"} />
           <SidebarLink href="/?tab=alpha" icon={<Crown size={20}/>} label="Alpha Protocols" active={activeTab === "alpha"} />
           <SidebarLink href="/?tab=settings" icon={<Settings size={20}/>} label="System Config" active={activeTab === "settings"} />
+          <SidebarLink href="/?tab=manual" icon={<BookOpen size={20}/>} label="Bot Manual" active={activeTab === "manual"} />
         </nav>
       </aside>
 
@@ -192,7 +223,45 @@ export default async function AdminDashboard({
            </div>
         )}
 
-      </main>
+         {/* TAB 6: BOT MANUAL */}
+         {activeTab === "manual" && (
+          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+            <header className="px-2">
+                <h3 className="text-3xl font-[1000] uppercase text-white tracking-tighter italic">System Manual</h3>
+                <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Version 1.5 // Build: Master Elite</p>
+            </header>
+
+            {/* Survivor Protocols */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {overseerData.protocols.public_survivor_commands.map((cmd) => (
+                    <div key={cmd.command} className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-[32px]">
+                        <code className="text-cyan-400 font-bold text-lg">{cmd.command}</code>
+                        <p className="text-slate-400 text-sm mt-2">{cmd.description}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Staff Protocols */}
+            <div className="bg-[#050505] border border-white/[0.05] rounded-[40px] overflow-hidden">
+                <div className="p-6 bg-white/[0.02] border-b border-white/[0.05]">
+                    <h4 className="text-red-500 text-xs font-black uppercase tracking-[0.4em]">Restricted_Staff_Protocols</h4>
+                </div>
+                <table className="w-full text-left">
+                    <tbody className="divide-y divide-white/[0.02]">
+                        {overseerData.protocols.staff_restricted_commands.map((cmd) => (
+                            <tr key={cmd.command}>
+                                <td className="p-6">
+                                    <code className="text-red-400 font-bold">{cmd.command}</code>
+                                    <p className="text-xs text-slate-500 mt-1">{cmd.description}</p>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        )}
+    </main>
     </div>
   );
 }
