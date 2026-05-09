@@ -295,9 +295,17 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
 
   </div>
 )}
-            )}
 
-            {/* SECTOR 5: MANUAL */}
+              {/* NEW: Deny Form */}
+    <form action={denyAlpha}>
+        <input type="hidden" name="id" value={claim.id}/>
+        <button type="submit" className="px-4 bg-red-500/10 text-red-500 font-bold py-2 rounded-lg hover:bg-red-500 hover:text-white transition text-[10px] uppercase">
+            Deny
+        </button>
+    </form>
+</div>
+            
+             {/* SECTOR 5: MANUAL */}
             {activeTab === "manual" && (
                 <div className="space-y-6 animate-in fade-in duration-500">
                     <h3 className="text-2xl font-bold text-white tracking-tight">System Manual</h3>
