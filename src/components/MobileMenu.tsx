@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, LayoutDashboard, Map as MapIcon, Users, Crown, Settings, Shield, LogOut, BookOpen, ChevronRight } from "lucide-react";
+
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
