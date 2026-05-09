@@ -18,6 +18,7 @@ export default function MobileMenu({ session, tribeCount, survivorCount }: any) 
     { id: "roster", label: "Survivor Roster", icon: <Users size={20}/> },
     { id: "alpha", label: "Alpha Protocols", icon: <Crown size={20}/> },
     { id: "settings", label: "System Config", icon: <Settings size={20}/> },
+    { id: "manual", label: "Bot Manual", icon: <BookOpen size={20}/> },
   ];
 
   return (
