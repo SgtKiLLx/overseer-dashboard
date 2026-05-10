@@ -8,11 +8,10 @@
 }
 
 body {
-  background-color: #000;
-  color: #e2e8f0;
-  padding-top: var(--safe-top);
-  padding-bottom: var(--safe-bottom);
-  overflow-x: hidden;
+  background-color: black;
+  color: #22d3ee;
+  /* Add padding to the bottom so users can scroll past the fixed navbar */
+  padding-bottom: 100px; 
 }
 
 @layer utilities {
