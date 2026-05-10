@@ -280,9 +280,11 @@ export default async function AdminDashboard({
 
 // --- UI COMPONENTS ---
 
+// --- UI COMPONENTS ---
+
 function SidebarLink({ href, icon, label, active }: any) {
   return (
-    <Link href={href} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all active:scale-95 ${active ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-sm' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}>
+    <Link href={href} className={`flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium transition-all active:scale-95 ${active ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-sm' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}>
       {icon} {label}
     </Link>
   );
@@ -291,29 +293,18 @@ function SidebarLink({ href, icon, label, active }: any) {
 function MobileNavLink({ href, icon, active = false, showDivider = true }: any) {
   return (
     <Link href={href} className="relative flex-1 flex flex-col justify-center items-center h-16 transition-all duration-500">
-      {/* 1. THE FULL SECTION GLOW (MCE / ANDROID 17) */}
+      {/* THE FULL SECTION GLOW */}
       {active && (
         <div className="absolute inset-0 flex justify-center items-center">
-            {/* Background Beam (Fills vertical space) */}
             <div className="absolute inset-y-0 w-full bg-gradient-to-b from-white/[0.01] via-white/[0.05] to-white/[0.01]" />
-            
-            {/* The Radial Light Bloom */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15)_0%,transparent_70%)] blur-xl" />
-            
-            {/* The Google-style white pill */}
             <div className="w-12 h-7 bg-white rounded-full shadow-[0_0_25px_rgba(255,255,255,0.4)] absolute z-10" />
-            
-            {/* Top Indicator Beam */}
             <div className="absolute top-0 w-8 h-[2px] bg-white rounded-full shadow-[0_0_10px_white]" />
         </div>
       )}
-      
-      {/* 2. THE ICON (Scales and changes color based on active state) */}
-      <div className={`relative z-20 transition-all duration-500 ${active ? 'text-black scale-110' : 'text-slate-500'}`}>
+      <div className={`relative z-10 transition-all duration-500 ${active ? 'text-black scale-110' : 'text-slate-500'}`}>
         {icon}
       </div>
-
-      {/* 3. SUBTLE DIVIDER (Hides when active) */}
       {showDivider && !active && (
         <div className="absolute right-0 h-5 w-[1px] bg-white/[0.05] rounded-full" />
       )}
@@ -321,20 +312,26 @@ function MobileNavLink({ href, icon, active = false, showDivider = true }: any) 
   );
 }
 
-function StatCard({ label, value, icon }: any) {
+// THIS IS THE ONE THAT WAS MISSING/RENAMED
+function StatCardBig({ label, value, unit, gradient, border }: any) {
     return (
-        <div className="bg-[#0f0f0f] border border-white/10 p-6 rounded-xl space-y-4 hover:border-white/20 transition-all shadow-md">
-            <div className="text-slate-500 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">{label} {icon}</div>
-            <div className="text-4xl font-bold text-white tracking-tighter">{value}</div>
+        <div className={`bg-gradient-to-br ${gradient} ${border ? 'border border-white/5' : ''} rounded-[40px] p-10 shadow-2xl flex flex-col justify-between min-h-[260px]`}>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{label}</p>
+              <h3 className={`text-8xl font-black tracking-tighter my-2 ${border ? 'text-white' : 'text-black'}`}>{value}</h3>
+              <p className={`text-xs font-black uppercase tracking-widest ${border ? 'text-cyan-800' : 'text-black/60'}`}>{unit}</p>
+            </div>
         </div>
     )
 }
 
-function ConfigInput({ label, name, defaultValue }: any) {
+function ConfigInput({ label, name, defaultValue, icon }: any) {
     return (
         <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider ml-1">{label}</label>
-            <input name={name} defaultValue={defaultValue} className="w-full bg-[#161616] border border-white/5 rounded-lg px-4 py-3 text-sm text-cyan-400 font-mono focus:outline-none focus:border-cyan-500/40 transition-all shadow-inner" />
+            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider ml-1 flex items-center gap-2">
+                {icon} {label}
+            </label>
+            <input name={name} defaultValue={defaultValue} className="w-full bg-[#161616] border border-white/5 rounded-lg px-4 py-3 text-sm text-cyan-400 font-mono focus:outline-none focus:border-cyan-500/40 transition-all placeholder:text-slate-800 shadow-inner" />
         </div>
     )
 }
