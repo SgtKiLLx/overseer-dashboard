@@ -10,10 +10,10 @@ import Link from "next/link";
 const TARGET_GUILD_ID = "1488515896807919667";
 
 // --- MASTER SYSTEM MANUAL DATA ---
-const overseerData = {
+const ArkSentinelData = {
   protocols: {
     public_survivor_commands: [
-      { "command": "/register", "description": "Initialize a new tribe signature. Processed via the Gatekeeper protocol." },
+      { "command": "/register", "description": "Initialize a new tribe signature. Processed via the ArkSentinel." },
       { "command": "/join", "parameters": ["tribe_name"], "description": "Sync signature with an existing verified tribe." },
       { "command": "/lft", "description": "Deploy a recruitment resume to the server recruitment feed." },
       { "command": "/my-tribe", "description": "Access your verified signature, Xbox credentials, and balance." },
@@ -23,7 +23,7 @@ const overseerData = {
       { "command": "/buy", "parameters": ["item"], "description": "Authorize a market purchase and notify staff for delivery." },
       { "command": "/pay", "parameters": ["target", "amount"], "description": "Transfer Tek Coins between survivor signatures." },
       { "command": "/bounty", "parameters": ["tribe", "amount"], "description": "Place a coin reward on a rival tribe signature." },
-      { "command": "/help", "description": "Display the technical manual for all Overseer systems." }
+      { "command": "/help", "description": "Display the technical manual for all ArkSentinel systems." }
     ],
     staff_restricted_commands: [
       { "command": "/setup", "description": "Master sector configuration (Logs, Welcome, Rules, Recruitment, etc)." },
@@ -96,7 +96,7 @@ export default async function AdminDashboard({
       <aside className="w-64 bg-[#080808] border-r border-white/5 hidden lg:flex flex-col sticky top-0 h-screen shadow-2xl">
         <div className="h-16 flex items-center px-6 border-b border-white/5 gap-3">
           <Shield size={20} className="text-cyan-400" />
-          <span className="font-bold text-white text-sm tracking-tight uppercase italic">Overseer OS</span>
+          <span className="font-bold text-white text-sm tracking-tight uppercase italic">ArkSentinel OS</span>
         </div>
         <nav className="p-4 space-y-1 flex-1">
           <SidebarLink href="/?tab=intelligence" icon={<LayoutDashboard size={18}/>} label="Intelligence" active={activeTab === "intelligence"} />
@@ -233,7 +233,7 @@ export default async function AdminDashboard({
            <div className="space-y-12 animate-in fade-in duration-500 pb-20">
               <h3 className="text-3xl font-black uppercase text-white tracking-tighter italic">System Manual</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 {overseerData.protocols.public_survivor_commands.map(cmd => (
+                 {ArkSentinelData.protocols.public_survivor_commands.map(cmd => (
                     <div key={cmd.command} className="bg-white/[0.02] border border-white/5 p-6 rounded-[32px] transition-all hover:border-cyan-500/20">
                         <code className="text-cyan-400 font-bold text-base uppercase tracking-tight">{cmd.command}</code>
                         <p className="text-slate-500 text-xs mt-2 font-medium leading-relaxed">{cmd.description}</p>
@@ -243,7 +243,7 @@ export default async function AdminDashboard({
               <div className="bg-[#050505] border border-white/5 rounded-[40px] overflow-hidden">
                 <div className="p-6 bg-white/5 border-b border-white/5"><h4 className="text-red-500 text-xs font-black uppercase tracking-[0.4em]">Authorized_Staff_Protocols</h4></div>
                 <table className="w-full text-left text-sm"><tbody>
-                    {overseerData.protocols.staff_restricted_commands.map(cmd => (
+                    {ArkSentinelData.protocols.staff_restricted_commands.map(cmd => (
                         <tr key={cmd.command} className="border-b border-white/[0.02] last:border-0 hover:bg-white/[0.01]">
                             <td className="p-6"><code className="text-red-400 font-bold text-xs uppercase">{cmd.command}</code><p className="text-[10px] text-slate-600 mt-1 uppercase font-bold tracking-tight">{cmd.description}</p></td>
                         </tr>
