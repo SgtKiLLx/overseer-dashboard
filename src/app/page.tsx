@@ -115,15 +115,16 @@ export default async function AdminDashboard({
       </aside>
 
       {/* 2. MOBILE BOTTOM NAVIGATION (FULL GLOW + DIVIDERS) */}
-      <div className="lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[88%] max-w-sm">
-        <div className="mce-bevel-out bg-[#050505]/90 backdrop-blur-3xl border border-white/[0.05] rounded-[32px] overflow-hidden flex justify-between items-center h-16 shadow-[0_30px_70px_rgba(0,0,0,0.9)]">
-            <div className="mce-gloss absolute inset-0 rounded-[32px]" />
-            <MobileNavLink href="/?tab=intelligence" icon={<LayoutDashboard size={18} />} active={activeTab === "intelligence"} />
-            <MobileNavLink href="/?tab=map" icon={<MapIcon size={18} />} active={activeTab === "map"} />
-            <MobileNavLink href="/?tab=roster" icon={<Users size={18} />} active={activeTab === "roster"} />
-            <MobileNavLink href="/?tab=alpha" icon={<Crown size={18} />} active={activeTab === "alpha"} />
-            <MobileNavLink href="/?tab=manual" icon={<BookOpen size={18} />} active={activeTab === "manual"} />
-            <MobileNavLink href="/?tab=settings" icon={<Settings size={18} />} active={activeTab === "settings"} showDivider={false} />
+      {/* 2. MOBILE BOTTOM NAVIGATION (FULL WIDTH OS EDITION) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] w-full">
+        {/* The glass bar sits flush at the bottom with safe-area support */}
+        <div className="bg-[#050505]/90 backdrop-blur-3xl border-t border-white/[0.08] rounded-t-[32px] overflow-hidden flex justify-around items-center h-[85px] px-2 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
+            <MobileNavLink href="/?tab=intelligence" icon={<LayoutDashboard size={22} />} active={activeTab === "intelligence"} />
+            <MobileNavLink href="/?tab=map" icon={<MapIcon size={22} />} active={activeTab === "map"} />
+            <MobileNavLink href="/?tab=roster" icon={<Users size={22} />} active={activeTab === "roster"} />
+            <MobileNavLink href="/?tab=alpha" icon={<Crown size={22} />} active={activeTab === "alpha"} />
+            <MobileNavLink href="/?tab=manual" icon={<BookOpen size={22} />} active={activeTab === "manual"} />
+            <MobileNavLink href="/?tab=settings" icon={<Settings size={22} />} active={activeTab === "settings"} showDivider={false} />
         </div>
       </div>
 
