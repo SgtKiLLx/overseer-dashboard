@@ -293,21 +293,28 @@ function SidebarLink({ href, icon, label, active }: any) {
 
 function MobileNavLink({ href, icon, active = false, showDivider = true }: any) {
   return (
-    <Link href={href} className="relative flex-1 flex flex-col justify-center items-center h-16 transition-all duration-500">
-      {/* THE FULL SECTION GLOW */}
+    <Link href={href} className="relative flex-1 flex flex-col justify-center items-center h-full transition-all duration-500">
       {active && (
         <div className="absolute inset-0 flex justify-center items-center">
-            <div className="absolute inset-y-0 w-full bg-gradient-to-b from-white/[0.01] via-white/[0.05] to-white/[0.01]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15)_0%,transparent_70%)] blur-xl" />
-            <div className="w-12 h-7 bg-white rounded-full shadow-[0_0_25px_rgba(255,255,255,0.4)] absolute z-10" />
-            <div className="absolute top-0 w-8 h-[2px] bg-white rounded-full shadow-[0_0_10px_white]" />
+            {/* Full-Section Background Vertical Glow */}
+            <div className="absolute inset-y-0 w-full bg-gradient-to-b from-white/[0.02] via-white/[0.08] to-transparent opacity-100" />
+            
+            {/* The Google-style white pill behind the icon */}
+            <div className="w-14 h-8 bg-white rounded-full shadow-[0_0_25px_rgba(255,255,255,0.4)] absolute z-10" />
+            
+            {/* Top Indicator Beam */}
+            <div className="absolute top-0 w-10 h-[3px] bg-cyan-400 rounded-full shadow-[0_0_15px_#00ffff]" />
         </div>
       )}
-      <div className={`relative z-10 transition-all duration-500 ${active ? 'text-black scale-110' : 'text-slate-500'}`}>
+      
+      {/* The Icon - Scales up slightly when active */}
+      <div className={`relative z-20 transition-all duration-500 ${active ? 'text-black scale-110' : 'text-slate-500'}`}>
         {icon}
       </div>
+
+      {/* Hairline Divider (Hides when active or last item) */}
       {showDivider && !active && (
-        <div className="absolute right-0 h-5 w-[1px] bg-white/[0.05] rounded-full" />
+        <div className="absolute right-0 h-6 w-[1px] bg-white/[0.05] rounded-full" />
       )}
     </Link>
   );
