@@ -282,7 +282,7 @@ export default async function AdminDashboard({
 
 function SidebarLink({ href, icon, label, active }: any) {
   return (
-    <Link href={href} className={`flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium transition-all ${active ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-sm' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}>
+    <Link href={href} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all active:scale-95 ${active ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-sm' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}>
       {icon} {label}
     </Link>
   );
@@ -290,38 +290,51 @@ function SidebarLink({ href, icon, label, active }: any) {
 
 function MobileNavLink({ href, icon, active = false, showDivider = true }: any) {
   return (
-    <Link href={href} className="relative flex-1 flex flex-col justify-center items-center py-5 transition-all duration-500">
+    <Link href={href} className="relative flex-1 flex flex-col justify-center items-center h-16 transition-all duration-500">
+      {/* 1. THE FULL SECTION GLOW (MCE / ANDROID 17) */}
       {active && (
-        <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-white/[0.03]" />
-            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_70%)] blur-lg" />
-            <div className="absolute inset-0 flex justify-center items-center"><div className="w-16 h-10 bg-white rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)]" /></div>
+        <div className="absolute inset-0 flex justify-center items-center">
+            {/* Background Beam (Fills vertical space) */}
+            <div className="absolute inset-y-0 w-full bg-gradient-to-b from-white/[0.01] via-white/[0.05] to-white/[0.01]" />
+            
+            {/* The Radial Light Bloom */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15)_0%,transparent_70%)] blur-xl" />
+            
+            {/* The Google-style white pill */}
+            <div className="w-12 h-7 bg-white rounded-full shadow-[0_0_25px_rgba(255,255,255,0.4)] absolute z-10" />
+            
+            {/* Top Indicator Beam */}
+            <div className="absolute top-0 w-8 h-[2px] bg-white rounded-full shadow-[0_0_10px_white]" />
         </div>
       )}
-      <div className={`relative z-10 transition-all duration-500 ${active ? 'text-black scale-110' : 'text-slate-500'}`}>{icon}</div>
-      {showDivider && !active && <div className="absolute right-0 h-6 w-[1px] bg-white/[0.05] rounded-full" />}
+      
+      {/* 2. THE ICON (Scales and changes color based on active state) */}
+      <div className={`relative z-20 transition-all duration-500 ${active ? 'text-black scale-110' : 'text-slate-500'}`}>
+        {icon}
+      </div>
+
+      {/* 3. SUBTLE DIVIDER (Hides when active) */}
+      {showDivider && !active && (
+        <div className="absolute right-0 h-5 w-[1px] bg-white/[0.05] rounded-full" />
+      )}
     </Link>
   );
 }
 
-function StatCardBig({ label, value, unit, gradient, border }: any) {
+function StatCard({ label, value, icon }: any) {
     return (
-        <div className={`bg-gradient-to-br ${gradient} ${border ? 'border border-white/5' : ''} rounded-[40px] p-10 shadow-2xl flex flex-col justify-between min-h-[260px]`}>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">{label}</p>
-              <h3 className={`text-8xl font-black tracking-tighter my-2 ${border ? 'text-white' : 'text-black'}`}>{value}</h3>
-              <p className={`text-xs font-black uppercase tracking-widest ${border ? 'text-cyan-800' : 'text-black/60'}`}>{unit}</p>
-            </div>
+        <div className="bg-[#0f0f0f] border border-white/10 p-6 rounded-xl space-y-4 hover:border-white/20 transition-all shadow-md">
+            <div className="text-slate-500 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">{label} {icon}</div>
+            <div className="text-4xl font-bold text-white tracking-tighter">{value}</div>
         </div>
     )
 }
 
 function ConfigInput({ label, name, defaultValue }: any) {
     return (
-        <div className="space-y-3">
-            <label className="text-[9px] font-black text-slate-600 uppercase ml-4 italic tracking-widest">{label}</label>
-            <input name={name} defaultValue={defaultValue} className="w-full bg-black border border-white/5 rounded-2xl px-6 py-4 text-sm font-bold text-cyan-400 focus:outline-none focus:border-cyan-500/30 transition-all shadow-inner" />
+        <div className="space-y-2">
+            <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider ml-1">{label}</label>
+            <input name={name} defaultValue={defaultValue} className="w-full bg-[#161616] border border-white/5 rounded-lg px-4 py-3 text-sm text-cyan-400 font-mono focus:outline-none focus:border-cyan-500/40 transition-all shadow-inner" />
         </div>
     )
 }
