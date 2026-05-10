@@ -1,6 +1,6 @@
 {
-  "name": "Overseer Command Center",
-  "short_name": "Overseer",
+  "name": "ArkSentinel Command Center",
+  "short_name": "ArkSentinel",
   "description": "Ark Tribe Management System",
   "start_url": "/",
   "display": "standalone",
