@@ -1,12 +1,14 @@
 import { db } from "@/lib/db";
 import { tribeRegistrationsTable, alphaClaimsTable, guildConfigTable } from "@/lib/db/schema";
-import { Users, Shield, Crown, Activity, Trash2, CheckCircle, Search, Settings, Save, Hash, Lock, Coins, Zap, BookOpen, Bell, LayoutDashboard, Map as MapIcon, Radio } from "lucide-react";
+import { Users, Shield, Crown, Activity, Trash2, CheckCircle, Search, Settings, Save, Hash, Lock, Coins, Zap, BookOpen, Bell, LayoutDashboard, Map as MapIcon, Radio, XCircle } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { Suspense } from "react";
 import PageAnimate from "../components/PageAnimate";
+import MobileMenu from "../components/MobileMenu";
 
 const TARGET_GUILD_ID = "1488515896807919667";
 
@@ -38,7 +40,6 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
 
   const activeTab = searchParams.tab || "intelligence";
 
-  // Data Fetching
   const registrations = await db.select().from(tribeRegistrationsTable).where(eq(tribeRegistrationsTable.guildId, TARGET_GUILD_ID)).orderBy(desc(tribeRegistrationsTable.createdAt));
   const alphaClaims = await db.select().from(alphaClaimsTable).where(eq(alphaClaimsTable.guildId, TARGET_GUILD_ID));
   const configs = await db.select().from(guildConfigTable).where(eq(guildConfigTable.guildId, TARGET_GUILD_ID));
@@ -48,34 +49,39 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
   const parseCoords = (c: string) => {
     if (!c) return { top: '0%', left: '0%', valid: false };
     const p = c.split(/[, ]+/).map(x => parseFloat(x.trim()));
-    return { top: `${p[0]}%`, left: `${p[1]}%`, valid: !isNaN(p[0]) && !isNaN(p[1]) };
+    return { top: `${p[0]}%`, left: `${p[1]}%`, valid: !isNaN(p[0]) };
   };
 
   // --- SERVER ACTIONS ---
   async function broadcastAlert(formData: FormData) {
     "use server";
+    const msg = formData.get("message");
+    if (!msg) return;
     await fetch("https://tribe-register-discord-bot.onrender.com/broadcast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: process.env.BROADCAST_KEY, message: formData.get("message"), guildId: TARGET_GUILD_ID })
+        body: JSON.stringify({ key: process.env.BROADCAST_KEY, message: msg, guildId: TARGET_GUILD_ID })
     });
   }
 
   async function wipeSurvivor(formData: FormData) {
     "use server";
-    await db.delete(tribeRegistrationsTable).where(eq(tribeRegistrationsTable.id, Number(formData.get("id"))));
+    const id = Number(formData.get("id"));
+    await db.delete(tribeRegistrationsTable).where(eq(tribeRegistrationsTable.id, id));
     revalidatePath("/");
   }
 
   async function verifyAlpha(formData: FormData) {
     "use server";
-    await db.update(alphaClaimsTable).set({ status: "approved" }).where(eq(alphaClaimsTable.id, Number(formData.get("id"))));
+    const id = Number(formData.get("id"));
+    await db.update(alphaClaimsTable).set({ status: "approved" }).where(eq(alphaClaimsTable.id, id));
     revalidatePath("/");
   }
 
   async function denyAlpha(formData: FormData) {
     "use server";
-    await db.delete(alphaClaimsTable).where(eq(alphaClaimsTable.id, Number(formData.get("id"))));
+    const id = Number(formData.get("id"));
+    await db.delete(alphaClaimsTable).where(eq(alphaClaimsTable.id, id));
     revalidatePath("/");
   }
 
@@ -95,7 +101,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
           <div className="w-11 h-11 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center shadow-2xl">
             <img src="/icon.png" className="w-7 h-7 object-contain" alt="O" />
           </div>
-          <h1 className="text-xl font-bold tracking-tighter text-white italic uppercase">Sentinel</h1>
+          <h1 className="text-xl font-bold tracking-tighter text-white italic uppercase leading-none">Sentinel</h1>
         </div>
         <nav className="space-y-3 flex-1">
           <SidebarLink href="/?tab=intelligence" icon={<LayoutDashboard size={18}/>} label="Intelligence" active={activeTab === "intelligence"} />
@@ -110,7 +116,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
 
       {/* 2. MOBILE BOTTOM NAV */}
       <div className="lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[94%] max-w-lg">
-        <div className="bg-black border border-white/10 rounded-[36px] overflow-hidden flex justify-around items-center p-1 shadow-2xl">
+        <div className="bg-black border border-white/10 rounded-[36px] overflow-hidden flex justify-around items-center p-1 shadow-2xl shadow-black">
             <MobileNavLink href="/?tab=intelligence" icon={<LayoutDashboard size={20} />} active={activeTab === "intelligence"} />
             <MobileNavLink href="/?tab=broadcast" icon={<Radio size={20} />} active={activeTab === "broadcast"} />
             <MobileNavLink href="/?tab=map" icon={<MapIcon size={20} />} active={activeTab === "map"} />
@@ -120,13 +126,15 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
         </div>
       </div>
 
+      {/* 3. MAIN CONTENT */}
       <main className="flex-1 p-6 lg:p-12 max-w-[1600px] mx-auto w-full pt-16 lg:pt-12 transition-all">
         
         {activeTab === "intelligence" && (
           <PageAnimate id="intelligence">
             <header className="mb-12">
                 <h2 className="text-3xl lg:text-5xl font-bold text-white tracking-tight leading-none mb-4 uppercase">
-                    Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 pr-4">{session.user?.name}</span>
+                    Welcome back, <br/>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 pr-4">{session.user?.name}</span>
                 </h2>
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -157,11 +165,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
              <h3 className="text-2xl font-bold text-white mb-8 italic uppercase tracking-tighter">Strategic Map</h3>
              <div className="bg-[#050505] border border-white/5 rounded-[48px] p-3 shadow-2xl relative">
                 <div className="relative aspect-square w-full rounded-[38px] overflow-hidden border border-white/10">
-                    <div className="absolute inset-0 bg-cover bg-center grayscale-[0.2] opacity-80" style={{ backgroundImage: "url('https://ark.wiki.gg/images/c/cc/Fjordur_Topographic_Map.jpg')" }} />
+                    <div className="absolute inset-0 bg-cover bg-center grayscale-[0.2] opacity-80 transition-transform duration-[2s]" style={{ backgroundImage: "url('https://ark.wiki.gg/images/c/cc/Fjordur_Topographic_Map.jpg')" }} />
                     {alphaClaims.filter(c => c.status === 'approved').map(claim => {
                         const pos = parseCoords(claim.coordinates);
                         if (!pos.valid) return null;
-                        return <div key={claim.id} className="absolute" style={{ top: pos.top, left: pos.left, transform: 'translate(-50%, -50%)' }}><div className="w-8 h-8 bg-cyan-400 rounded-full animate-ping absolute opacity-20" /><div className="w-4 h-4 bg-cyan-400 rounded-full border-2 border-black shadow-[0_0_15px_rgba(34,211,238,0.8)]" /></div>
+                        return <div key={claim.id} className="absolute" style={{ top: pos.top, left: pos.left, transform: 'translate(-50%, -50%)' }}><div className="w-8 h-8 bg-cyan-400 rounded-full animate-ping absolute opacity-20" /><div className="w-4 h-4 bg-cyan-400 rounded-full border-2 border-black shadow-[0_0_15px_rgba(34,211,238,0.8)]" /></div>;
                     })}
                 </div>
              </div>
@@ -175,14 +183,16 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                 <div className="overflow-x-auto touch-pan-x">
                     <table className="w-full text-left min-w-[700px]">
                         <thead className="bg-white/5 font-black text-[9px] uppercase tracking-widest text-slate-500">
-                            <tr><th className="p-6">Identification</th><th className="p-6">Survivor</th><th className="p-6 text-right pr-12">Wipe</th></tr>
+                            <tr><th className="p-6">Identification</th><th className="p-6">Survivor</th><th className="p-6">Wealth</th><th className="p-6">Status</th><th className="p-6 text-right pr-12">Wipe</th></tr>
                         </thead>
                         <tbody className="divide-y divide-white/[0.02]">
                             {registrations.map(reg => (
                                 <tr key={reg.id} className="group hover:bg-white/[0.01]">
-                                    <td className="p-6 font-bold text-sm uppercase text-white tracking-tight">{reg.tribeName}</td>
-                                    <td className="p-6"><p className="text-sm font-semibold">{reg.ign}</p><p className="text-[10px] text-slate-600 uppercase italic tracking-widest">{reg.xboxGamertag}</p></td>
-                                    <td className="p-6 text-right pr-10">
+                                    <td className="p-8"><div className="flex items-center gap-4 font-bold text-sm uppercase text-white">{reg.tribeName}</div></td>
+                                    <td className="p-8"><p className="text-sm font-semibold">{reg.ign}</p><p className="text-[10px] text-slate-600 uppercase italic tracking-widest">{reg.xboxGamertag}</p></td>
+                                    <td className="p-8 text-cyan-400 font-bold"><Coins size={14} className="inline mr-1" />{reg.tekCoins}</td>
+                                    <td className="p-8"><span className={`text-[9px] font-black uppercase px-2 py-1 rounded-md ${reg.status === 'verified' ? 'bg-green-500/10 text-green-500' : 'bg-orange-500/10 text-orange-500'}`}>{reg.status}</span></td>
+                                    <td className="p-8 text-right pr-10">
                                         <form action={wipeSurvivor}><input type="hidden" name="id" value={reg.id} /><button className="p-3 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all transform active:scale-90"><Trash2 size={16} /></button></form>
                                     </td>
                                 </tr>
@@ -204,7 +214,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                             <tbody className="divide-y divide-white/[0.02] font-mono">
                                 {registrations.slice(0, 10).map(reg => (
                                     <tr key={reg.id} className="hover:bg-white/[0.01]">
-                                        <td className="p-6 text-slate-400 uppercase">{reg.ign} initialized to {reg.tribeName}</td>
+                                        <td className="p-6 text-slate-300 uppercase">{reg.ign} initialized to {reg.tribeName}</td>
                                         <td className="p-6 text-slate-600">{new Date(reg.createdAt).toLocaleTimeString()}</td>
                                     </tr>
                                 ))}
@@ -216,10 +226,10 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
                     <h3 className="text-xl font-bold text-amber-500 uppercase italic tracking-tight">Pending Alpha</h3>
                     {alphaClaims.map(claim => (
                         <div key={claim.id} className={`bg-[#0A0A0A] border border-white/5 p-8 rounded-[40px] space-y-6 ${claim.status === 'approved' ? 'opacity-40 grayscale' : ''}`}>
-                            <h4 className="text-xl font-black text-white uppercase">{claim.tribeName}</h4>
+                            <h4 className="text-xl font-black text-white uppercase italic">{claim.tribeName}</h4>
                             <div className="flex gap-2">
-                                <form action={verifyAlpha} className="flex-1"><input type="hidden" name="id" value={claim.id}/><button type="submit" className="w-full bg-white text-black font-black py-4 rounded-2xl text-[10px] uppercase">Authorize</button></form>
-                                <form action={denyAlpha}><input type="hidden" name="id" value={claim.id}/><button type="submit" className="px-4 bg-red-500/10 text-red-500 font-bold py-4 rounded-2xl text-[10px] uppercase">Deny</button></form>
+                                <form action={verifyAlpha} className="flex-1"><input type="hidden" name="id" value={claim.id}/><button type="submit" className="w-full bg-white text-black font-black py-4 rounded-2xl text-[10px] uppercase italic">Authorize</button></form>
+                                <form action={denyAlpha}><input type="hidden" name="id" value={claim.id}/><button type="submit" className="px-4 bg-red-500/10 text-red-500 font-bold py-4 rounded-2xl text-[10px] uppercase italic">Deny</button></form>
                             </div>
                         </div>
                     ))}
@@ -234,7 +244,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  {overseerData.protocols.public.map(cmd => (
                     <div key={cmd.c} className="bg-white/[0.02] border border-white/5 p-6 rounded-[32px]">
-                        <code className="text-cyan-400 font-bold text-sm uppercase">{cmd.c}</code>
+                        <code className="text-cyan-400 font-bold text-lg">{cmd.c}</code>
                         <p className="text-slate-500 text-xs mt-1">{cmd.d}</p>
                     </div>
                  ))}
@@ -263,6 +273,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams: {
     </div>
   );
 }
+
+// --- SUB-COMPONENTS ---
 
 function SidebarLink({ href, icon, label, active = false }: any) {
   return (
@@ -298,9 +310,14 @@ function StatCardBig({ label, value, unit, gradient, border }: any) {
                 <p className="text-sm font-black uppercase tracking-widest opacity-60">{unit}</p>
             </div>
         </div>
-    )
+    );
 }
 
 function ConfigInput({ label, name, defaultValue }: any) {
     return (
-        <div className="space-y-4"><label className="text-[10px] font-black text-slate-600 uppercase tracking-
+        <div className="space-y-4">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] ml-4 flex items-center gap-2 italic">{label}</label>
+            <input name={name} defaultValue={defaultValue} className="w-full bg-[#080808] border border-white/[0.05] rounded-[28px] px-8 py-5 text-sm font-bold text-cyan-400 focus:outline-none transition-all shadow-inner" />
+        </div>
+    );
+}
