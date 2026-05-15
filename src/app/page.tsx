@@ -8,8 +8,6 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import PageAnimate from "../components/PageAnimate";
-import MobileMenu from "../components/MobileMenu";
-
 const TARGET_GUILD_ID = "1488515896807919667";
 
 const overseerData = {
