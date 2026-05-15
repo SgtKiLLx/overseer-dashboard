@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { tribeRegistrationsTable, alphaClaimsTable, guildConfigTable } from "@/lib/db/schema";
-import { Users, Shield, Crown, Activity, Trash2, CheckCircle, Search, Settings, Save, Hash, Lock, Coins, Zap, BookOpen, Bell, LayoutDashboard, Map as MapIcon, XCircle } from "lucide-react";
+import { Users, Shield, Crown, Activity, Trash2, CheckCircle, Search, Radio, Settings, Save, Hash, Lock, Coins, Zap, BookOpen, Bell, LayoutDashboard, Map as MapIcon, XCircle } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { eq, desc } from "drizzle-orm";
