@@ -77,6 +77,7 @@ export const guildConfigTable = pgTable("guild_config", {
   guildId: varchar("guild_id", { length: 50 }).primaryKey(),
   adminRoleIds: text("admin_role_ids").default(""), // Comma-separated Role IDs
   staffLogChannelId: varchar("staff_log_channel_id", { length: 50 }),
+  newsChannelId: varchar("news_channel_id", { length: 50 }),
   tribeCategoryId: varchar("tribe_category_id", { length: 50 }),
   recruitmentChannelId: varchar("recruitment_channel_id", { length: 50 }),
   welcomeChannelId: varchar("welcome_channel_id", { length: 50 }),
